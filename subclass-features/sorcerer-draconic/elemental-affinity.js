@@ -1,6 +1,6 @@
 try {
     const type = args[0].actor.flags["midi-qol"]?.dragonAncestor.toLowerCase();
-    if (!type || args[0].item.type != "spell" || ((type !=  args[0].newDefaultDamageType ?? args[0].defaultDamageType.toLowerCase()) && !args[0].damageRoll?.dice?.find(d => type == d.flavor.toLowerCase()))) return;
+    if (!type || args[0].item.type != "spell" || !args[0].item.system.school || ((type !=  args[0].newDefaultDamageType ?? args[0].defaultDamageType.toLowerCase()) && !args[0].damageRoll?.dice?.find(d => type == d.flavor.toLowerCase()))) return;
     if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].damageRoll) {
         let bonusRoll = await new Roll('0 + ' + `${args[0].actor.system.abilities.cha.mod}`).evaluate({async: true});
         for (let i = 1; i < bonusRoll.terms.length; i++) {

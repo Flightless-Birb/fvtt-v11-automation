@@ -1,5 +1,5 @@
 try {
-    if (args[0].item.type != "spell") return;
+    if (args[0].item.type != "spell" || !args[0].item.system.school) return;
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
     let consume = true;
     if (args[0].macroPass == "preTargeting" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {

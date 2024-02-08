@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || !args[0].workflow.defaultDamageType || !args[0].targets?.length) return;
+    if (args[0].macroPass != "postActiveEffects" || !args[0].workflow.defaultDamageType || !args[0].targets?.length) return;
     const damageType = args[0].workflow.defaultDamageType.toLowerCase();
     const types = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
     if (!types.includes(damageType)) return;

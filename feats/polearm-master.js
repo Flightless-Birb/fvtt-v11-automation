@@ -17,24 +17,32 @@ try {
         </div>
         </form>
     `;
-    new Dialog({
-        title: "Polearm Master: Choose a weapon",
-        content,
-        buttons: {
-            Ok: {
-                label: "Ok",
-                callback: async () => {
-                    const weapon = args[0].actor.items.find(i => i.id == $("input[type='radio'][name='weapon']:checked").val());
-                    const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.versatile": "" });
-					const parts = weaponCopy.system.damage.parts;
-                    parts[0][0] = parts[0][0].replace(/d(6|8|10|12)/, "d4"); 
-                    parts[0][1] = "bludgeoning";
-                    const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
-                    attackItem.system.prof = weapon.system.prof;
-                    await MidiQOL.completeItemRoll(attackItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+    let dialog = weapons.length == 1 ? weapons[0].id : new Promise((resolve,) => {
+        new Dialog({
+            title: "Polearm Master: Choose a weapon",
+            content,
+            buttons: {
+                Ok: {
+                    label: "Confirm",
+                    callback: async () => {resolve($("input[type='radio'][name='weapon']:checked").val())},
+                },
+                Cancel: {
+                    label: "Cancel",
+                    callback: () => {resolve(false)},
                 },
             },
-            Cancel: { label: "Cancel" },
-        },
-    }).render(true);
+            default: "Cancel",
+            close: () => {resolve(false)}
+        }).render(true);
+    });
+    let weaponId = await dialog;
+    if (!weaponId) return;
+    const weapon = args[0].actor.items.find(i => i.id == weaponId);
+    const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.versatile": "" });
+    const parts = weaponCopy.system.damage.parts;
+    parts[0][0] = parts[0][0].replace(/d(6|8|10|12)/, "d4"); 
+    parts[0][1] = "bludgeoning";
+    const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
+    attackItem.system.prof = weapon.system.prof;
+    await MidiQOL.completeItemRoll(attackItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
 } catch (err) {console.error("Polearm Master Macro - ", err)}

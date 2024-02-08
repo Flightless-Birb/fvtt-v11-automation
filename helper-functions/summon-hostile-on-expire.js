@@ -26,14 +26,14 @@ try {
                 icon: args[0].item.img,
                 name: args[0].item.name,
                 origin: args[0].item.uuid,
-                changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.J9uaF0zVZfGUnBwO", priority: "20" }],
-                flags: { "midi-qol": { summonIds: summons.tokenIds } }
+                flags: { "midi-qol": { summonId: summonId, summonIds: summons.tokenIds } },
+                changes: [{ key: "macro.execute", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.J9uaF0zVZfGUnBwO ${summonId}`, priority: "20" }]
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
             Hooks.off("summonComplete", hook);
         });
-    } else if (args[0] == "off" && args[args.length - 1].efData.flags["midi-qol"].summonIds) {
-        const summonIds = args[args.length - 1].efData.flags["midi-qol"].summonIds;
+    } else if (args[0] == "off" && args[args.length - 1].efData.flags["midi-qol"].summonId && args[args.length - 1].efData.flags["midi-qol"].summonIds) {
+        const summonIds = canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == args[args.length - 1].efData.flags["midi-qol"].summonId).map(t => t.id);
         summonIds.forEach(async s => {
             const summon = canvas.tokens.get(s);
             summon.document.update({ disposition: -1 });

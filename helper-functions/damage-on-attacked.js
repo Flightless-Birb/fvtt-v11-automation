@@ -37,10 +37,9 @@ try {
         const itemImg = sourceEffect ? sourceEffect.icon : "icons/svg/explosion.svg";
         if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType, "killAnim =", killAnim);
         if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range || checkIncapacitated) return console.warn("Damage On Attacked conditions not met");
-        console.error(args[0].workflow.token, args[0].workflow.tokenUuid)
         if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
-                if (workflowNext.uuid === args[0].uuid && workflowNext.hitTargets.size) {
+                if (workflowNext.uuid === args[0].uuid && (workflowNext.hitTargets.size|| MidiQOL.configSettings().autoRollDamage != "always")) {
                     await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
                     Hooks.off("midi-qol.postActiveEffects", hook1);
                 }

@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || args[0].item.type != "spell" || args[0].spellLevel == 0 || args[0].workflow.defaultDamageType.toLowerCase() != "healing" || !args[0].targets.find(t => t.actor.uuid != args[0].actor.uuid)) return;
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || args[0].item.type != "spell" || !args[0].item.system.school || args[0].spellLevel == 0 || args[0].workflow.defaultDamageType.toLowerCase() != "healing" || !args[0].targets.find(t => t.actor.uuid != args[0].actor.uuid)) return;
     const itemData = {
         name: "Blessed Healer",
         img: "icons/magic/light/explosion-star-teal.webp",

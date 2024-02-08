@@ -182,33 +182,33 @@ Hooks.on("midi-qol.preAttackRollComplete", async (workflow) => {
                     console.warn("Attack Wall Cover", calculatedCover);
                     const calculatedTokenCover = await calculateTokenCover(source, token);
                     console.warn("Attack Token Cover", calculatedTokenCover);
-                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.name.includes("Three-Quarters Cover"))) {
+                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.name.includes("Cover (Three-Quarters)"))) {
                         const effectData = {
                             changes: [{ key: "system.attributes.ac.bonus", mode: 2, value: "+3", priority: 20, },],
                             disabled: false,
-                            name: "Three-Quarters Cover",
+                            name: "Cover (Three-Quarters)",
                             flags: { dae: { specialDuration: ["isAttacked","isHit"] } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         let hook = Hooks.on("midi-qol.AttackRollComplete", async (workflowNext) => {
                             if (workflowNext.uuid == workflow.uuid) {
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Three-Quarters Cover")).map(e => e.id)] });
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Cover (Three-Quarters)")).map(e => e.id)] });
                                 Hooks.off("midi-qol.AttackRollComplete", hook);
                             }
                         });
                         console.warn("Attack 3/4 Cover used");
                     }
-                    if ((calculatedCover >= 40 || calculatedTokenCover) && !tactor.effects.find(e => e.name.includes("Half Cover"))) {
+                    if ((calculatedCover >= 40 || calculatedTokenCover) && !tactor.effects.find(e => e.name.includes("Cover (Half)"))) {
                         const effectData = {
                             changes: [{ key: "system.attributes.ac.bonus", mode: 2, value: "+2", priority: 20, },],
                             disabled: false,
-                            name: "Half Cover",
+                            name: "Cover (Half)",
                             flags: { dae: { specialDuration: ["isAttacked","isHit"] } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         let hook = Hooks.on("midi-qol.AttackRollComplete", async (workflowNext) => {
                             if (workflowNext.uuid == workflow.uuid) {
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Half Cover")).map(e => e.id)] });
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Cover (Half)")).map(e => e.id)] });
                                 Hooks.off("midi-qol.AttackRollComplete", hook);
                             }
                         });
@@ -241,33 +241,33 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                     console.warn("Save Wall Cover", calculatedCover);
                     const calculatedTokenCover = await calculateTokenCover(source, token);
                     console.warn("Save Token Cover", calculatedTokenCover);
-                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.name.includes("Three-Quarters Cover"))) {
+                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.name.includes("Cover (Three-Quarters)"))) {
                         const effectData = {
                             changes: [{ key: "system.abilities.dex.bonuses.save", mode: 2, value: "+3", priority: 20, },],
                             disabled: false,
-                            name: "Three-Quarters Cover",
+                            name: "Cover (Three-Quarters)",
                             flags: { dae: { specialDuration: ["isSave"] } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         let hook = Hooks.on("midi-qol.postCheckSaves", async (workflowNext) => {
                             if (workflowNext.uuid == workflow.uuid) {
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Three-Quarters Cover")).map(e => e.id)] });
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Cover (Three-Quarters)")).map(e => e.id)] });
                                 Hooks.off("midi-qol.postCheckSaves", hook);
                             }
                         });
                         console.warn("Attack 3/4 Cover used");
                     }
-                    if ((calculatedCover >= 40 || calculatedTokenCover) && !tactor.effects.find(e => e.name.includes("Half Cover"))) {
+                    if ((calculatedCover >= 40 || calculatedTokenCover) && !tactor.effects.find(e => e.name.includes("Cover (Half)"))) {
                         const effectData = {
                             changes: [{ key: "system.abilities.dex.bonuses.save", mode: 2, value: "+2", priority: 20, },],
                             disabled: false,
-                            name: "Half Cover",
+                            name: "Cover (Half)",
                             flags: { dae: { specialDuration: ["isSave"] } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         let hook = Hooks.on("midi-qol.postCheckSaves", async (workflowNext) => {
                             if (workflowNext.uuid == workflow.uuid) {
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Half Cover")).map(e => e.id)] });
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.filter(e => e.name.includes("Cover (Half)")).map(e => e.id)] });
                                 Hooks.off("midi-qol.postCheckSaves", hook);
                             }
                         });
