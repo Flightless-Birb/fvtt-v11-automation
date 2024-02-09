@@ -6,8 +6,6 @@ try {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name == "Metamagic: Careful Spell");
         if (carefulItem && args[0].item.system.save?.dc && args[0].item.system.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
-        let distantItem = args[0].actor.items.find(i => i.name == "Metamagic: Distant Spell");
-        if (distantItem && (args[0].item.system.range?.value || args[0].item.system.range?.units == "touch")) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
         let extendedItem = args[0].actor.items.find(i => i.name == "Metamagic: Extended Spell");
         if (extendedItem && args[0].item.system.duration?.value) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="extended"><img src="${extendedItem.img}" style="border:0px; width: 50px; height:50px;">Extended Spell<br>(1 Sorcery Point)</label>`;
         let heightenedItem = args[0].actor.items.find(i => i.name == "Metamagic: Heightened Spell")
@@ -20,6 +18,24 @@ try {
         if (transmutedItem && args[0].item.system.damage?.parts?.length && args[0].item.system.damage.parts.find(p => ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(p[1].toLowerCase()))) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="transmuted"><img src="${transmutedItem.img}" style="border:0px; width: 50px; height:50px;">Transmuted Spell<br>(1 Sorcery Point)</label>`;
         let twinnedItem = args[0].actor.items.find(i => i.name == "Metamagic: Twinned Spell");
         if (twinnedItem && ["action", "bonus"].includes(args[0].item.system.activation.type) && ["ally", "creature", "enemy"].includes(args[0].item.system.target.type) && args[0].item.system.target.value == 1 && usesItem.system.uses.value >= Math.max(1, args[0].spellLevel)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="twinned"><img src="${twinnedItem.img}" style="border:0px; width: 50px; height:50px;">Twinned Spell (${Math.max(1, args[0].spellLevel)}<br>Sorcery Point${Math.max(1, args[0].spellLevel) > 1 ? "s" : ""})</label>`;
+        // distant spell range check
+        let distantItem = args[0].actor.items.find(i => i.name == "Metamagic: Distant Spell");
+        if (distantItem && args[0].item.system.range?.value && ["cone", "cube", "cylinder", "line", "radius", "sphere", "square", "wall"].includes(args[0].item.system.target.type)) {
+            // templates ignore range check
+            metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
+        } else {
+            let checkRange = MidiQOL.checkRange(args[0].item, args[0].workflow.token, args[0].targets, false);
+            let distantRange =  checkRange.range + (args[0].item.system.range?.units == "touch" ? 25 : args[0].item.system.range?.value ? args[0].item.system.range?.value : 0);
+            let checkDistant = !args[0].targets.find(t => MidiQOL.computeDistance(t, args[0].workflow.token, false) > distantRange);
+            if (checkRange.result == "fail") {
+                if (distantItem && (args[0].item.system.range?.value || args[0].item.system.range?.units == "touch") && checkDistant) {
+                    // if spell isn't in range but would be with distant spell
+                    metamagicContent = `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
+                } else {
+                    return;
+                }
+            }
+        }
         if (metamagicContent == "") return;
         let content = `
             <style>
@@ -64,22 +80,74 @@ try {
         });
         let metamagic = await dialog;
         if (!metamagic) {
-            args[0].workflow.metamagic = "none";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    workflowNext.metamagic = { none: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
             return;
         }
         if (metamagic == "quickened") {
             // quickened spell
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "quickened";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { quickened: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "subtle") {
             // subtle spell
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "subtle";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { subtle: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "twinned") {
             // twinned spell
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
-            args[0].workflow.metamagic = "twinned";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
+                    workflowNext.metamagic = { twinned: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "careful") {
             // careful spell
             let carefulDialog =  new Promise(async (resolve) => {
@@ -118,9 +186,22 @@ try {
                     Hooks.off("midi-qol.preTargeting", hook2);
                 }
             });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "careful";
-        } else if (metamagic == "distant") {workflowNext.item.uuid
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { careful: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+        } else if (metamagic == "distant") {
             // distant spell
             const effectData = {
                 changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: `${args[0].item.system.range.units == "touch" ? 25 : args[0].item.system.range.value}`, priority: 20 }],
@@ -131,8 +212,21 @@ try {
                 flags: { dae: { specialDuration: ["endCombat", "1Spell"] } }
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "distant";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { distant: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "extended") {  
             // extended spell
             let hook1 = Hooks.on("createActiveEffect", async (effect) => {
@@ -151,8 +245,21 @@ try {
                     Hooks.off("midi-qol.preTargeting", hook2);
                 }
             });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "extended";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { extended: true};
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "heightened") {
             // heightened spell
             let heightenedDialog =  new Promise(async (resolve) => {
@@ -178,8 +285,21 @@ try {
                 icon: heightenedItem.img
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
-            args[0].workflow.metamagic = "heightened";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
+                    workflowNext.metamagic = { heightened: true };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         } else if (metamagic == "transmuted") {
             // transmuted spell
             let options = ["Acid", "Cold", "Fire", "Lightning", "Poison", "Thunder"];
@@ -208,7 +328,7 @@ try {
             if (!type) return;
             args[0].workflow.newDefaultDamageType = type;
             let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async (workflowNext) => { // update damage roll to use new damage type
-                if (workflowNext.item.uuid == args[0].item.uuid) {
+                if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic.transmuted) {
                     workflowNext.defaultDamageType = type;
                     let newDamageRoll = workflowNext.damageRoll;
                     newDamageRoll.terms.forEach(t => { 
@@ -223,7 +343,7 @@ try {
             let hook2 = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
                 if (effect.origin.includes(args[0].actor.uuid) && effect.changes.find(c => options.find(o => c.value.toLowerCase().includes(o.toLowerCase())))) {
                     let hookEf = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
-                        if (args[0].item.uuid == workflowNext.item.uuid) {
+                        if (args[0].item.uuid == workflowNext.item.uuid && workflowNext.metamagic.transmuted) {
                             let changes = [...effect.changes];
                             changes.forEach(c => options.forEach(o => c.value = c.value.replace(o.toLowerCase(), type.toLowerCase())));
                             await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: effect.parent.uuid, updates: [{ _id: effect._id, changes: changes }] });
@@ -233,16 +353,29 @@ try {
                 }
             });
             let hook3 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
-                if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic != "extended") {
+                if (workflowNext.item.uuid == args[0].item.uuid && !workflowNext.metamagic.transmuted) {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
                     Hooks.off("createActiveEffect", hook2);
                     Hooks.off("midi-qol.preTargeting", hook3);
                 }
             });
-            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-            args[0].workflow.metamagic = "transmuted";
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                    workflowNext.metamagic = { transmuted: type };
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
+            let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
+                    Hooks.off("midi-qol.preTargeting", abortHook);
+                }
+            });
         }
-    } else if (args[0].macroPass == "preTargeting" && args[0].workflow.metamagic == "distant") {
+    } else if (args[0].macroPass == "preTargeting" && args[0].workflow.metamagic?.distant) {
         const effectData = {
             changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: `${args[0].item.system.range.units == "touch" ? 25 : args[0].item.system.range.value}`, priority: 20 }],
             disabled: false,
@@ -317,13 +450,16 @@ try {
             let results = terms[t].results;
             for (let r = 0; r < results.length; r++) {
                 if (results[r].rerolled || !results[r].active) continue;
+                let type = terms[t].flavor ? terms[t].flavor.toLowerCase() : args[0].workflow.defaultDamageType.toLowerCase();
+                if (args[0].workflow.newDefaultDamageType && type == args[0].workflow.defaultDamageType.toLowerCase()) type = args[0].workflow.newDefaultDamageType;
+                if (args[0].workflow.metamagic?.transmuted && ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(type)) type = args[0].workflow.metamagic.transmuted;
                 termsContent += `<label class='checkbox-label' for='die${t}${r}'>
                     <input type='checkbox' id='die${t}${r}' name='die' value='${results[r].result},${terms[t].faces},${t}'/>
                     <tiv style="border:0px; witth: 50px; height:50px;">
                         <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                     </tiv>
-                    <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                    <p>(${type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)})</p>
                 </label>
                 `;
             }
