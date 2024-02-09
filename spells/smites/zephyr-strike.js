@@ -38,7 +38,7 @@ try {
         args[0].workflow.zephyrStrike = true;
         const effect = args[0].actor.effects.find(e => e.name.includes("Zephyr Strike"));
         if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: effect.parent.uuid, updates: [{ _id: effect._id, changes: [] }] });                 
-        let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async (workflowNext) => {
+        let hook1 = Hooks.on("midi-qol.postDamageRollStarted", async (workflowNext) => {
             if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.zephyrStrike) {
                 let diceMult = args[0].isCritical ? 2: 1;
                 let bonusRoll = await new Roll('0 + ' + `${diceMult}d8[force]`).evaluate({async: true});
@@ -49,11 +49,13 @@ try {
                 workflowNext.damageRoll._formula = workflowNext.damageRoll._formula + ' + ' + `${diceMult}d8[force]`;
                 workflowNext.damageRoll._total = workflowNext.damageRoll.total + bonusRoll.total;
                 await workflowNext.setDamageRoll(workflowNext.damageRoll);
+                Hooks.off("midi-qol.postDamageRollStarted", hook1);
+                Hooks.off("midi-qol.preTargeting", hook2);
             }
         });
         let hook2 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
             if (workflowNext.item.uuid == args[0].item.uuid && !workflowNext.zephyrStrike) {
-                Hooks.off("midi-qol.preDamageRollComplete", hook1);
+                Hooks.off("midi-qol.postDamageRollStarted", hook1);
                 Hooks.off("midi-qol.preTargeting", hook2);
             }
         });

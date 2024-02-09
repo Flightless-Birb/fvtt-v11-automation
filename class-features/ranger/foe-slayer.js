@@ -44,7 +44,7 @@ try {
 		args[0].attackRoll._total += bonusRoll.total;
 		args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${args[0].actor.system.abilities.wis.mod}`;
 		args[0].workflow.setAttackRoll(args[0].attackRoll);
-	} else if (args[0].macroPass == "postDamageRoll" && args[0].hitTargets.length && args[0].damageRoll) {
+	} else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll) {
 		let useFeat = true;
 		if (game.combat) {
 			let dialog = new Promise((resolve) => {

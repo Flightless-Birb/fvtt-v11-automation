@@ -86,7 +86,7 @@ try {
         if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.hexTarget").concat([{ key: "flags.midi-qol.hexTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
     }
     //apply damage bonus
-    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postDamageRoll" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
+    if (lastArg.tag == "DamageBonus" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
         const damageType = actor.flags["midi-qol"]?.hexDamageType ? actor.flags["midi-qol"]?.hexDamageType : "necrotic";
         let bonusRoll = await new Roll('0 + ' + `${diceMult}d6[${damageType}]`).evaluate({async: true});

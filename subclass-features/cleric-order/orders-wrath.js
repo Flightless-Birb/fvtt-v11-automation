@@ -11,7 +11,7 @@ try {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
     } else if (args[0].macroPass == "isAttacked" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
         args[0].workflow.ordersWrath = true
-        let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
+        let hook1 = Hooks.on("midi-qol.postDamageRollStarted", async workflowNext => {
             if (workflowNext.uuid === args[0].uuid && args[0].workflow.ordersWrath && workflowNext.damageRoll && workflowNext.targets.size) {
                 let newDamageRoll = workflowNext.damageRoll;
                 let diceMult = workflowNext.isCritical ? 2 : 1;
@@ -25,13 +25,13 @@ try {
                 await workflowNext.setDamageRoll(newDamageRoll);
                 let effect = [...workflowNext.targets][0].actor.effects.find(e => e.name == "Order's Wrath Damage Bonus");
                 if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: [...workflowNext.targets][0].actor.uuid, effects: [effect.id] });
-                Hooks.off("midi-qol.preDamageRollComplete", hook1);
-
+                Hooks.off("midi-qol.postDamageRollStarted", hook1);
+                Hooks.off("midi-qol.preItemRoll", hook2);
             }
         });
         let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
             if (workflowNext.uuid === args[0].uuid) {
-                Hooks.off("midi-qol.preDamageRollComplete", hook1);
+                Hooks.off("midi-qol.postDamageRollStarted", hook1);
                 Hooks.off("midi-qol.preItemRoll", hook2);
             }
         });

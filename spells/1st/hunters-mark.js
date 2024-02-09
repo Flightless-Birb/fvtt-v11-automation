@@ -46,7 +46,7 @@ try {
         if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.huntersMarkTarget").concat([{ key: "flags.midi-qol.huntersMarkTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
     }
     //apply damage bonus
-    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postDamageRoll" && lastArg.damageRoll && ["mwak","rwak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.huntersMark?.includes(lastArg.actor.uuid))) {
+    if (lastArg.tag == "DamageBonus" && lastArg.damageRoll && ["mwak","rwak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.huntersMark?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
         let bonusRoll = await new Roll('0 + ' + `${diceMult}d6`).evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(bonusRoll);

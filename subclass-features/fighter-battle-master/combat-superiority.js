@@ -3,7 +3,7 @@ try {
 	const die = args[0].actor.system.scale["battle-master"]["combat-superiority"];
 	const saveDC = 8 + args[0].actor.system.attributes.prof + (args[0].actor.system.abilities.dex.mod > args[0].actor.system.abilities.str.mod ? args[0].actor.system.abilities.dex.mod : args[0].actor.system.abilities.str.mod);
     if (!usesItem || !die) return;
-	if (args[0].macroPass == "prTargeting" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+	if (args[0].macroPass == "preTargeting" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
         if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
@@ -168,7 +168,7 @@ try {
 			args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}`;
 			await args[0].workflow.setAttackRoll(args[0].attackRoll);
 		}
-    } else if (args[0].macroPass == "postDamageRoll" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+    } else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
         if (args[0].workflow.combatSuperiority) {
 			if (["brace", "feintingAttack", "lungingAttack", "quickToss"].includes(args[0].workflow.combatSuperiority)) {
 				let diceMult = args[0].isCritical ? 2 : 1;
