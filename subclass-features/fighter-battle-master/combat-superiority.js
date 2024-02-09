@@ -7,7 +7,8 @@ try {
 		let maneuverContent = "";
 		let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
         if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
-		let content = `
+		if (!maneuverContent) return;
+        let content = `
             <style>
             .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
             .maneuver .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal;}
@@ -45,8 +46,20 @@ try {
         });
         let maneuver = await dialog;
         if (!maneuver) return;
-		args[0].workflow.combatSuperiority = maneuver;
-		await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+		let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+            if (workflowNext.item.uuid == args[0].item.uuid) {
+                workflowNext.combatSuperiority = maneuver;
+                await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+                Hooks.off("midi-qol.preItemRoll", updateHook);
+                Hooks.off("midi-qol.preTargeting", abortHook);
+            }
+        });
+        let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+            if (workflowNext.item.uuid == args[0].item.uuid) {
+                Hooks.off("midi-qol.preItemRoll", updateHook);
+                Hooks.off("midi-qol.preTargeting", abortHook);
+            }
+        });
 		if (maneuver == "lungingAttack") {
 			const effectData = {
                 changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: "+5", priority: 20 }],
@@ -66,7 +79,8 @@ try {
         if (feintingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="feintingAttack"><img src="${feintingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Feinting Attack</label>`;
         let quickTossItem = args[0].actor.items.find(i => i.name == "Maneuver: Quick Toss");
         if (quickTossItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].item.system.properties.thr && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="quickToss"><img src="${quickTossItem.img}" style="border:0px; width: 50px; height:50px;">Quick Toss</label>`;
-		let content = `
+		if (!maneuverContent) return;
+        let content = `
             <style>
             .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
             .maneuver .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal;}
@@ -117,7 +131,8 @@ try {
 		let maneuverContent = "";
 		let precisionAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Precision Attack");
         if (precisionAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="precisionAttack"><img src="${precisionAttackItem.img}" style="border:0px; width: 50px; height:50px;">Precision Attack</label>`;
-		let content = `
+		if (!maneuverContent) return;
+        let content = `
             <style>
             .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
             .maneuver .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal;}
@@ -200,7 +215,7 @@ try {
         if (sweepingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="sweepingAttack"><img src="${sweepingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Sweeping Attack</label>`;
         let tripAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Trip Attack");
         if (tripAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="tripAttack"><img src="${tripAttackItem.img}" style="border:0px; width: 50px; height:50px;">Trip Attack</label>`;
-		if (maneuverContent == "") return;
+		if (!maneuverContent) return;
         let content = `
             <style>
             .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
