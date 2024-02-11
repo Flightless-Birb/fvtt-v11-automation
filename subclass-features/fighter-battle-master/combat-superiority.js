@@ -6,7 +6,7 @@ try {
 	if (args[0].macroPass == "preTargeting" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
-        if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
+        if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType) && MidiQOL.checkRange(args[0].item, args[0].workflow.token, args[0].targets, false).result == "fail") maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
 		if (!maneuverContent) return;
         let content = `
             <style>
@@ -18,7 +18,7 @@ try {
             </style>
             <form class="maneuver">
                 <div class="form-group" id="maneuvers">${maneuverContent}</div>
-                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "e" : "ce"} Remaining)</p></div>
+                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "ce" : "e"} Remaining)</p></div>
             </form>
         `;
         let dialog = new Promise(async (resolve) => {
@@ -74,7 +74,7 @@ try {
 	} if (args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let braceItem = args[0].actor.items.find(i => i.name == "Maneuver: Brace");
-        if (braceItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="brace"><img src="${braceItem.img}" style="border:0px; width: 50px; height:50px;">Brace</label>`;
+        if (braceItem && ["mwak"].includes(args[0].item.system.actionType) && game?.combat?.current?.tokenId != args[0].tokenId) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="brace"><img src="${braceItem.img}" style="border:0px; width: 50px; height:50px;">Brace</label>`;
         let feintingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Feinting Attack");
         if (feintingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="feintingAttack"><img src="${feintingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Feinting Attack</label>`;
         let quickTossItem = args[0].actor.items.find(i => i.name == "Maneuver: Quick Toss");
@@ -90,7 +90,7 @@ try {
             </style>
             <form class="maneuver">
                 <div class="form-group" id="maneuvers">${maneuverContent}</div>
-                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "e" : "ce"} Remaining)</p></div>
+                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "ce" : "e"} Remaining)</p></div>
             </form>
         `;
         let dialog = new Promise(async (resolve) => {
@@ -143,7 +143,7 @@ try {
             <form class="maneuver">
                 <div class="form-group" id="maneuvers">${maneuverContent}</div>
 				<div><p>(Attack Roll Total: ${args[0].attackRoll._total})</p></div>
-                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "e" : "ce"} Remaining)</p></div>
+                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "ce" : "e"} Remaining)</p></div>
             </form>
         `;
         let dialog = new Promise(async (resolve) => {
@@ -226,7 +226,7 @@ try {
             </style>
             <form class="maneuver">
                 <div class="form-group" id="maneuvers">${maneuverContent}</div>
-                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "e" : "ce"} Remaining)</p></div>
+                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "ce" : "e"} Remaining)</p></div>
             </form>
         `;
         let dialog = new Promise(async (resolve) => {

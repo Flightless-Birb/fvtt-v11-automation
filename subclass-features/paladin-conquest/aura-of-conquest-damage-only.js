@@ -23,3 +23,12 @@ try {
     const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
     await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 } catch (err) {console.error("Aura of Conquest Macro - ", err)}
+
+/*
+turn=start,
+label=Aura of Conquest,
+killAnim=true,
+damageRoll=floor(@classes.paladin.levels/2),
+damageType=psychic,
+applyCondition=canvas.tokens.get(game?.combat?.nextCombatant?.tokenId)?.actor?.effects?.find(e=>e.name=="Frightened"&&e.origin.includes("@actorUuid"))
+*/

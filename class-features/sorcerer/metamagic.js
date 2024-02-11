@@ -6,6 +6,8 @@ try {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name == "Metamagic: Careful Spell");
         if (carefulItem && args[0].item.system.save?.dc && args[0].item.system.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
+        let distantItem = args[0].actor.items.find(i => i.name == "Metamagic: Distant Spell");
+        if (distantItem && ((args[0].item.system.range?.value && ["cone", "cube", "cylinder", "line", "radius", "sphere", "square", "wall"].includes(args[0].item.system.target.type)) || ((args[0].item.system.range?.value || args[0].item.system.range?.units == "touch") && MidiQOL.checkRange(args[0].item, args[0].workflow.token, args[0].targets, false).result == "fail"))) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
         let extendedItem = args[0].actor.items.find(i => i.name == "Metamagic: Extended Spell");
         if (extendedItem && args[0].item.system.duration?.value) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="extended"><img src="${extendedItem.img}" style="border:0px; width: 50px; height:50px;">Extended Spell<br>(1 Sorcery Point)</label>`;
         let heightenedItem = args[0].actor.items.find(i => i.name == "Metamagic: Heightened Spell");
@@ -18,24 +20,6 @@ try {
         if (transmutedItem && args[0].item.system.damage?.parts?.length && args[0].item.system.damage.parts.find(p => ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(p[1].toLowerCase()))) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="transmuted"><img src="${transmutedItem.img}" style="border:0px; width: 50px; height:50px;">Transmuted Spell<br>(1 Sorcery Point)</label>`;
         let twinnedItem = args[0].actor.items.find(i => i.name == "Metamagic: Twinned Spell");
         if (twinnedItem && ["action", "bonus"].includes(args[0].item.system.activation.type) && ["ally", "creature", "enemy"].includes(args[0].item.system.target.type) && args[0].item.system.target.value == 1 && usesItem.system.uses.value >= Math.max(1, args[0].spellLevel)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="twinned"><img src="${twinnedItem.img}" style="border:0px; width: 50px; height:50px;">Twinned Spell (${Math.max(1, args[0].spellLevel)}<br>Sorcery Point${Math.max(1, args[0].spellLevel) > 1 ? "s" : ""})</label>`;
-        // distant spell range check
-        let distantItem = args[0].actor.items.find(i => i.name == "Metamagic: Distant Spell");
-        if (distantItem && args[0].item.system.range?.value && ["cone", "cube", "cylinder", "line", "radius", "sphere", "square", "wall"].includes(args[0].item.system.target.type)) {
-            // templates ignore range check
-            metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
-        } else {
-            let checkRange = MidiQOL.checkRange(args[0].item, args[0].workflow.token, args[0].targets, false);
-            let distantRange =  checkRange.range + (args[0].item.system.range?.units == "touch" ? 25 : args[0].item.system.range?.value ? args[0].item.system.range?.value : 0);
-            let checkDistant = !args[0].targets.find(t => MidiQOL.computeDistance(t, args[0].workflow.token, false) > distantRange);
-            if (checkRange.result == "fail") {
-                if (distantItem && (args[0].item.system.range?.value || args[0].item.system.range?.units == "touch") && checkDistant) {
-                    // if spell isn't in range but would be with distant spell
-                    metamagicContent = `<label class="radio-label"><br><input type="radio" name="metamagic" value="distant"><img src="${distantItem.img}" style="border:0px; width: 50px; height:50px;">Distant Spell<br>(1 Sorcery Point)</label>`;
-                } else {
-                    return;
-                }
-            }
-        }
         if (metamagicContent == "") return;
         let content = `
             <style>

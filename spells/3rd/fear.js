@@ -24,3 +24,13 @@ try {
     if (saveWorkflow.failedSaves.size) return;
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: actor.uuid, effects: [lastArg.efData._id] });
 } catch (err) {console.error("Fear Macro - ", err)}
+
+/*
+turn=end,
+label=Fear (Frightened),
+saveAbility=wis,
+saveDC=@attributes.spelldc,
+saveMagic=true,
+applyCondition=!MidiQOL.canSee(...(`${game?.combat?.current?.tokenId} ${'@token'}`.split(' ').map(t=>canvas.tokens.get(t)))),
+killAnim=true
+*/
