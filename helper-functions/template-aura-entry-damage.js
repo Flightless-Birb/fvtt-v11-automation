@@ -1,6 +1,6 @@
 try {
     const lastArg = args[args.length - 1];
-    if (args[0] != "on" || (game.combat && lastArg.tokenId == game.combat.current?.tokenId)) return;
+    if (args[0] != "on" || !game.combat || lastArg.tokenId != game.combat.current?.tokenId) return;
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
@@ -17,18 +17,17 @@ try {
     const itemData = {
         name: label ?? lastArg.efData.name,
         img: lastArg.efData.icon,
-        type: "feat",
+        type: saveMagic ? "spell" : "feat",
         flags: { midiProperties: { magiceffect: saveMagic, fulldam: saveDamage == "fulldamage" ? true : false, halfdam: saveDamage == "halfdamage" ? true : false, nodam: saveDamage == "nodamage" ? true : false }, autoanimations: { isEnabled: !killAnim } },
         system: {
+            level: 0,
             activation: { type: "special" },
             target: { value: 1, type: "creature", prompt: false },
             actionType: saveAbility && saveDC ? "save" : "other",
-            consume: { type: null, target: null, amount: null, scale: false },
-            uses: { prompt: false },
             damage: { parts: [[damageRoll, damageType]] },
             save: { ability: saveAbility ?? null, dc: saveDC ?? null, scaling: "flat" }
         }
     }
-    const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
-    await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
+    const damageItem = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
+    await MidiQOL.completeItemUse(damageItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 } catch (err) {console.error("Template Aura Entry Damage Macro - ", err)}

@@ -10,6 +10,7 @@ try {
 	};
 	await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
 	const usesItem = args[0].actor.items.find(i => i.name == "Ki" && i.system.uses.value);
+	const faces = args[0].actor.system.scale?.monk?.die?.faces ?? 4;
 	const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
 	if (!usesItem || args[0].damageRoll.total < args[0].workflowOptions.damageTotal || MidiQOL.computeDistance(args[0].workflow.token, attackWorkflow.token, false) > 60) return;
 	let attackDialog = await new Promise((resolve) => {
@@ -38,6 +39,7 @@ try {
 	attackItemData.system.range.long = 60;
 	attackItemData.system.consume = {};
 	attackItemData.system.proficient = 1;
+	attackItemData.system.damage.parts[0][0] = isNaN(attackItemData.system.damage.parts[0][0].match(/d(\d+)/)[1]) || attackItemData.system.damage.parts[0][0].match(/d(\d+)/)[1] >= faces ?  attackItemData.system.damage.parts[0][0] : attackItemData.system.damage.parts[0][0].replace(/d(\d+)/, `d${faces}`);
     const returnItem = new CONFIG.Item.documentClass(attackItemData, { parent: args[0].actor });
 	returnItem._prepareProficiency();
     await MidiQOL.completeItemUse(returnItem, {}, { showFullCard: false, createWorkflow: true, configureDialog: false, targetUuids: [attackWorkflow.tokenUuid], autoConsumeResource: "none" });

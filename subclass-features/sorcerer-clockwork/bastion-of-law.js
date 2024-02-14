@@ -65,7 +65,7 @@ try {
 			await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect2.id, changes: effect2.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: effect1.uuid, priority: 20 }]) }] });
 		}
 		await usesItem.update({"system.uses.value": Math.max(0, usesItem.system.uses.value - +shield)});
-	} else if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.totalDamage) {
+	} else if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.appliedDamage && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
 		let uses = args[0].actor.flags["midi-qol"]?.bastionOfLaw;
 		let usesEffect = args[0].actor.effects.find(e => e.name == "Bastion of Law Shield");
 		let dialog = await new Promise((resolve) => {
@@ -110,15 +110,13 @@ try {
 		let shieldRoll = await new Roll(`${spend}d8`).evaluate({async: true});
 		if (game.dice3d) game.dice3d.showForRoll(shieldRoll);
 		let dr = shieldRoll.total;
-		const hpDmg = workflow.damageItem.hpDamage;
-		const tempDmg = workflow.damageItem.tempDamage;
+		// applied damage recalc
+		workflow.damageItem.appliedDamage = Math.max(0, workflow.damageItem.appliedDamage - dr);
 		// hp damage recalc
-		workflow.damageItem.hpDamage = Math.max(0, workflow.damageItem.hpDamage - dr);
-		dr = Math.max(0, dr - hpDmg);
+		workflow.damageItem.hpDamage = Math.max(0, Math.min(workflow.damageItem.oldHP, workflow.damageItem.appliedDamage - workflow.damageItem.tempDamage));
 		workflow.damageItem.newHP = workflow.damageItem.oldHP - workflow.damageItem.hpDamage;
 		// temp hp damage recalc
-		workflow.damageItem.tempDamage = Math.max(0, workflow.damageItem.tempDamage - dr);
-		dr = Math.max(0, dr - tempDmg);
+		workflow.damageItem.tempDamage = Math.max(0, Math.min(workflow.damageItem.oldTempHP, workflow.damageItem.appliedDamage - workflow.damageItem.hpDamage));
 		workflow.damageItem.newTempHP = workflow.damageItem.oldTempHP - workflow.damageItem.tempDamage;
 		ChatMessage.create({ content: `Bastion of Law: ${shieldRoll.total} Damage Negated.` });
 		if (uses - spend > 0) {

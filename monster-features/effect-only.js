@@ -47,6 +47,6 @@ effects.find(e=>e.name=="Frightened"&&MidiQOL.canSee(canvas.tokens.get(tokenId),
 ["aberration","celestial","elemental","fey","fiend"].find(t=>MidiQOL.typeOrRace(targetActorUuid)?.toLowerCase().includes(t))
 
 //------underwater flags.midi-qol.disadvantage.attack.mwak/rwak flags.midi-qol.fail.attack.mwak/rwak
-!["dagger","javelin","shortsword","spear","trident"].includes(item.baseItem)
+!["dagger","javelin","shortsword","spear","trident"].includes(item.baseItem)&&!traits
 !["handcrossbow","lightcrossbow","heavycrossbow","net","dart"].includes(item.baseItem)
 MidiQOL.checkRange(workflow.item,workflow.token,[...workflow.targets],false).range>MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)

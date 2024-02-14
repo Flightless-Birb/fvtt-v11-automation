@@ -45,7 +45,7 @@ try {
 		const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
 		attackItem.system.prof = weapon.system.prof;
 		await MidiQOL.completeItemRoll(attackItem, { versatile: args[0].workflow.pressedKeys.versatile, showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
-	} else if (args[0] == "off" && !args[args.length - 1]["expiry-reason"] && args[1] && args[2]) {
+	} else if (args[0] == "off" && args[args.length - 1]["expiry-reason"] == "effect-deleted" && args[1] && args[2]) {
 		const lastArg = args[args.length - 1];
 		const tokenOrActor = await fromUuid(lastArg.actorUuid);
         const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;

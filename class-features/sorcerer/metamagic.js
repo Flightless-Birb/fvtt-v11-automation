@@ -126,10 +126,12 @@ try {
             });
         } else if (metamagic == "twinned") {
             // twinned spell
+            args[0].workflow.bonusTargets = args[0].workflow.bonusTargets ? args[0].workflow.bonusTargets + 1 : 1;
             // update metamagic and resource for real roll
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
+                    workflowNext.bonusTargets = workflowNext.bonusTargets ? workflowNext.bonusTargets + 1 : 1;
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.twinned = true;
                     } else {

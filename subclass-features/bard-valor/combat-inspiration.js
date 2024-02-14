@@ -1,12 +1,12 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "preActiveEffects" && args[0].item.effects.find(e => e.name == "Bardic Inspiration")) {
-        const faces = args[0].actor.system.scale.bard.inspiration.faces;
+        const faces = args[0].actor.system.scale?.bard?.inspiration?.faces ?? 6;
         let hook1 = Hooks.on("createActiveEffect", async (effect) => {
             if (effect.name == "Bardic Inspiration" && effect.parent.uuid == args[0].targets[0].actor.uuid && effect.parent.uuid != args[0].actor.uuid) {
                 let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                     if (args[0].uuid == workflowNext.uuid) {
                         const changes = args[0].targets[0].actor.effects.find(e => e.id == effect.id).changes;
-                        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].targets[0].actor.uuid, updates: [{ _id: effect.id, changes: changes.concat([{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "CombatInspiration, postDamageRoll", priority: 20 }, { key: "flags.midi-qol.combatInspiration", mode: 5, value: `d${faces}`, priority: 20 }, { key: "flags.midi-qol.optional.bi.ac", mode: 5, value: `+1d${faces}`, priority: 20 }]) }] });
+                        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].targets[0].actor.uuid, updates: [{ _id: effect.id, changes: changes.concat([{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.3XcaPQ88O8fYyS0V, postDamageRoll", priority: 20 }, { key: "flags.midi-qol.combatInspiration", mode: 5, value: `+1d${faces}`, priority: 20 }, { key: "flags.midi-qol.optional.bi.ac", mode: 5, value: `+1d${faces}`, priority: 20 }]) }] });
                         Hooks.off("midi-qol.RollComplete", hook2);
                     }
                 });
