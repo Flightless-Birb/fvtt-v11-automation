@@ -75,7 +75,6 @@ try {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     workflowNext.metamagic = { none: true };
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -88,10 +87,10 @@ try {
         }
         if (metamagic == "quickened") {
             // quickened spell
-            if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
             // update metamagic and resource for real roll
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
+                    if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.quickened = true;
@@ -99,7 +98,6 @@ try {
                         workflowNext.metamagic = { quickened: true };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -120,7 +118,6 @@ try {
                         workflowNext.metamagic = { subtle: true };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -143,7 +140,6 @@ try {
                         workflowNext.metamagic = { twinned: true };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -241,7 +237,6 @@ try {
                                 }
                             }
                             Hooks.off("midi-qol.postCheckSaves", saveHook);
-                            Hooks.off("midi-qol.preTargeting", abortHook);
                         }
                     });
                     let abortHook = Hooks.on("midi-qol.preTargeting", async workflowAfter => {
@@ -250,19 +245,24 @@ try {
                             Hooks.off("midi-qol.preTargeting", abortHook);
                         }
                     });
+                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                }
+            });
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.careful = true;
                     } else {
                         workflowNext.metamagic = { careful: true };
                     }
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
@@ -287,7 +287,6 @@ try {
                         workflowNext.metamagic = { distant: true };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -318,7 +317,6 @@ try {
                         workflowNext.metamagic = { extended: true };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
@@ -396,19 +394,24 @@ try {
                         icon: heightenedItem.img
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
+                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                }
+            });
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.heigtened = true;
                     } else {
                         workflowNext.metamagic = { heightened: true };
                     }
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
@@ -452,14 +455,14 @@ try {
                     await workflowNext.setDamageRoll(newDamageRoll);
                 }
             });
-            let effectHook = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
+            let createHook = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
                 if (effect.origin.includes(args[0].actor.uuid) && effect.changes.find(c => options.find(o => c.value.toLowerCase().includes(o.toLowerCase())))) {
-                    let hookEf = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
+                    let effectHook = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                         if (args[0].item.uuid == workflowNext.item.uuid && workflowNext.metamagic.transmuted) {
                             let changes = [...effect.changes];
                             changes.forEach(c => options.forEach(o => c.value = c.value.replace(o.toLowerCase(), type.toLowerCase())));
                             await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: effect.parent.uuid, updates: [{ _id: effect._id, changes: changes }] });
-                            Hooks.off("midi-qol.RollComplete", hookEf);
+                            Hooks.off("midi-qol.RollComplete", effectHook);
                         }
                     });
                 }
@@ -474,13 +477,12 @@ try {
                         workflowNext.metamagic = { transmuted: type };
                     }
                     Hooks.off("midi-qol.preItemRoll", updateHook);
-                    Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     Hooks.off("midi-qol.preDamageRollComplete", rollHook);
-                    Hooks.off("createActiveEffect", effectHook);
+                    Hooks.off("createActiveEffect", createHook);
                     Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
