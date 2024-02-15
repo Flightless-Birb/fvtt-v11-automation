@@ -1,4 +1,17 @@
 try {
+    if (args[0].workflow.celestialRevelation == "attack") {
+        let damage = args[0].actor.system.attributes.prof;
+        let damageType = args[0].actor.flags["midi-qol"]?.celestialRevelation ? args[0].actor.flags["midi-qol"]?.celestialRevelation : "radiant";
+        let bonusRoll = await new Roll('0 + ' + `${damage}[${damageType}]`).evaluate({async: true});
+        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
+        for (let i = 1; i < bonusRoll.terms.length; i++) {
+            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+        }
+        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
+        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+        await args[0].workflow.setDamageRoll(args[0].damageRoll);
+        return;
+    }
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
         let useFeat = true;
         if (game.combat) {
@@ -44,7 +57,7 @@ try {
         args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        args[0].workflow.celestialRevelation = true;
+        args[0].workflow.celestialRevelation = "attack";
     } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)  && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 
@@ -125,5 +138,6 @@ try {
         targetDamage.newTempHP = targetDamage.oldTempHP - targetDamage.tempDamage;
         targetDamage.hpDamage = Math.max(0, Math.min(targetDamage.oldHP, targetDamage.appliedDamage - targetDamage.tempDamage));
         targetDamage.newHP = targetDamage.oldHP - targetDamage.hpDamage;
+        args[0].workflow.celestialRevelation = "spell";
     }
 } catch (err) {console.error("Celestial Revelation Macro - ", err)}

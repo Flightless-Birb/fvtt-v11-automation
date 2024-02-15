@@ -1,4 +1,14 @@
 try {
+    if (args[0].workflow.focusedAim) {
+        let bonusRoll = await new Roll('0 + ' + `${2 * args[0].workflow.focusedAim}`).evaluate({async: true});
+        for (let i = 1; i < bonusRoll.terms.length; i++) {
+            args[0].attackRoll.terms.push(bonusRoll.terms[i]);
+        }
+        args[0].attackRoll._total += bonusRoll.total;
+        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * ki}`;
+        await args[0].workflow.setAttackRoll(args[0].attackRoll);
+        return;
+    }
     if (args[0].tag != "OnUse" || args[0].macroPass != "preCheckHits" || !args[0].attackRoll || args[0].isFumble || args[0].isCritical || !args[0].targets[0]?.actor || args[0].targets[0].actor.system.attributes.ac.value < args[0].attackRoll.total) return;
     const usesItem = args[0].actor.items.find(i => i.name == "Ki" && i.system.uses.value);
     if (!usesItem) return;
@@ -47,5 +57,6 @@ try {
     args[0].attackRoll._total += bonusRoll.total;
     args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * ki}`;
     await args[0].workflow.setAttackRoll(args[0].attackRoll);
+    args[0].workflow.focusedAim = ki;
     await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - ki) });
 } catch (err) {console.error("Ki: Focused Aim Macro - ", err)}

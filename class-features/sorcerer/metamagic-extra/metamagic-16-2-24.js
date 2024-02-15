@@ -441,7 +441,8 @@ try {
             });
             let type = await transmutedDialog;
             if (!type) return;
-            let rollHook = Hooks.on("midi-qol.preDamageRollStarted", async (workflowNext) => { // update damage roll to use new damage type
+            args[0].workflow.newDefaultDamageType = type;
+            let rollHook = Hooks.on("midi-qol.preDamageRollComplete", async (workflowNext) => { // update damage roll to use new damage type
                 if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic.transmuted) {
                     workflowNext.defaultDamageType = type;
                     let newDamageRoll = workflowNext.damageRoll;
@@ -470,7 +471,6 @@ try {
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-                    workflowNext.newDefaultDamageType = type;
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.transmuted = type;
                     } else {
@@ -481,7 +481,7 @@ try {
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    Hooks.off("midi-qol.preDamageRollStarted", rollHook);
+                    Hooks.off("midi-qol.preDamageRollComplete", rollHook);
                     Hooks.off("createActiveEffect", createHook);
                     Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
@@ -564,6 +564,9 @@ try {
             for (let r = 0; r < results.length; r++) {
                 if (results[r].rerolled || !results[r].active) continue;
                 let type = terms[t].flavor ? terms[t].flavor.toLowerCase() : args[0].workflow.defaultDamageType.toLowerCase();
+                if (args[0].workflow.newOverrideDamageType) type = args[0].workflow.newOverrideDamageType;
+                if (args[0].workflow.newDefaultDamageType && type == args[0].workflow.defaultDamageType.toLowerCase()) type = args[0].workflow.newDefaultDamageType;
+                if (args[0].workflow.metamagic?.transmuted && ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(type)) type = args[0].workflow.metamagic.transmuted;
                 termsContent += `
                 <label class='checkbox-label' for='die${t}${r}'>
                     <input type='checkbox' id='die${t}${r}' name='die' value='${results[r].result},${terms[t].faces},${t}'/>
