@@ -49,6 +49,7 @@ try {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 
             let targetToken = canvas.tokens.get(target.tokenId);
+            if (!targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
             targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
         });
         if (targetContent == "") return;
@@ -102,6 +103,15 @@ try {
         });
         let targetId = await dialog;
         if (!targetId) return;
+        if (game.combat) {
+            const effectData = {
+                disabled: false,
+                flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
+                icon: "icons/commodities/biological/wing-bird-white.webp",
+                name: "Used Celestial Revelation",
+            }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+        }
         let target = canvas.tokens.get(targetId);
         let targetDamage = args[0].workflow.damageList.find(d => d.tokenId = targetId);
         let damageBonus = { damage: args[0].actor.system.attributes.prof, type: `radiant` };

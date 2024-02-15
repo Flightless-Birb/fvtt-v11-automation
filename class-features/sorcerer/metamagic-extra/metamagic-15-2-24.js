@@ -1,9 +1,4 @@
 try {
-    if (args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].item.uuid)) {
-        args[0].workflow.saveDetails.disadvantage = true;
-        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.name == "Heightened Spell Save Disadvantage").id] });
-        return;
-    }
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
     if (args[0].item.type != "spell" || !args[0].item.system.school || !usesItem) return;
     let consume = true;
@@ -154,115 +149,58 @@ try {
             });
         } else if (metamagic == "careful") {
             // careful spell
-            let targetHook = Hooks.on("midi-qol.postPreambleComplete", async workflowNext => {
+            let carefulDialog =  new Promise(async (resolve) => {
+                new Dialog({
+                    title: "Metamagic: Careful Spell",
+                    content: `<p>Target any creatures you want to protect.<br>(Up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} Creatures)</p>`,
+                    buttons: {
+                        Confirm: {
+                            label: "Confirm",
+                            callback: () => { resolve(Array.from(game.user?.targets)) },
+                        },
+                    },
+                    default: "Confirm",
+                    close: () => { resolve(false) },
+                }).render(true);
+            });
+            let targets = await carefulDialog;
+            if (!targets) return;
+            if (targets.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many targets selected for Careful Spell (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
+            let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    let targetLimit = Math.max(1, workflowNext.actor.system.abilities.cha.mod);
-                    let targetContent = "";
-                    [...workflowNext.targets].forEach((targetToken) => { 
-                        if (!targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
-                        targetContent += `
-                        <label class='checkbox-label'>
-                            <input type='checkbox' id='${targetToken.id}' name='target' value='${targetToken.id}'/>
-                            <tiv style="border:0px; witth: 50px; height:50px;">
-                                <img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="position: relative;">
-                            </tiv>
-                        </label>
-                        `;
-                    });
-                    if (targetContent == "") return;
-                    let content = `
-                    <style>
-                    .target .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
-                    .target .checkbox-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal; }
-                    .target .check-label input { display: none; }
-                    .target img { border: 0px; width: 50px; height: 50px; flex: 0 0 50px; cursor: pointer; }
-                    </style>
-                    <form class="target">
-                        <div><p>Choose up to ${targetLimit} targets to automatically save:</p></div>
-                        <div class="form-group" id="target-group">${targetContent}</div>
-                    </form>
-                    <script>
-                        var limit = ${targetLimit};
-                        $("input[type='checkbox'][name='target']").change(function() {
-                            var bol = $("input[type='checkbox'][name='target']:checked").length >= limit;
-                            $("input[type='checkbox'][name='target']").not(":checked").attr("disabled", bol);
-                        });
-                        $("img").mouseover(function(e) {
-                            let targetToken = canvas.tokens.get(e.target.id);
-                            targetToken.hover = true;
-                            targetToken.refresh();
-                        });
-                        $("img").mouseout(function(e) {
-                            let targetToken = canvas.tokens.get(e.target.id);
-                            targetToken.hover = false;
-                            targetToken.refresh();
-                        });
-                    </script>
-                    `;
-                    let carefulDialog = await new Promise((resolve) => {
-                        new Dialog({
-                            title: "Metamagic: Careful Spell",
-                            content,
-                            buttons: {
-                                Confirm: {
-                                    label: "Confirm",
-                                    icon: '<i class="fas fa-check"></i>',
-                                    callback: async () => {
-                                        let targets = [];
-                                        let checked = $("input[type='checkbox'][name='target']:checked"); 
-                                        console.error(checked)
-                                        for (let c = 0; c < checked.length; c++) {
-                                            console.error(checked[c].value)
-                                            let target = canvas.tokens.get(checked[c].value)
-                                            targets.push(target); 
-                                        }
-                                        resolve(targets);
-                                    },
-                                },
-                                Cancel: {
-                                    label: "Cancel",
-                                    icon: '<i class="fas fa-times"></i>',
-                                    callback: async () => {resolve(false)},
-                                },
-                            },
-                            default: "Cancel",
-                            close: () => {resolve(false)}
-                        }).render(true);
-                    });
-                    let saveTargets = await carefulDialog;
-                    if (!saveTargets.length) return;
-                    let saveHook = Hooks.on("midi-qol.postCheckSaves", async workflowAfter => {
-                        if (workflowAfter.item.uuid == workflowNext.item.uuid) {
-                            for (let t = 0; t < saveTargets.length; t++) {
-                                if (workflowAfter.failedSaves.has(saveTargets[t]) && !workflowAfter.saves.has(saveTargets[t])) {
-                                    workflowAfter.failedSaves.delete(saveTargets[t]);
-                                    workflowAfter.saves.add(saveTargets[t]);
-                                    Object.assign(workflowAfter.saveDisplayData.find(d => d.target == saveTargets[t]), { saveString: "succeeds", saveStyle: "color: green" });
-                                }
-                            }
-                            Hooks.off("midi-qol.postCheckSaves", saveHook);
-                            Hooks.off("midi-qol.preTargeting", abortHook);
+                    for (let t = 0; t < targets.length; t++) {
+                        if (workflowNext.failedSaves.has(targets[t]) && !workflowNext.saves.has(targets[t])) {
+                            workflowNext.failedSaves.delete(targets[t]);
+                            workflowNext.saves.add(targets[t]);
+                            Object.assign(workflowNext.saveDisplayData.find(d => d.target == targets[t]), { saveString: "succeeds", saveStyle: "color: green" });
                         }
-                    });
-                    let abortHook = Hooks.on("midi-qol.preTargeting", async workflowAfter => {
-                        if (workflowAfter.item.uuid == workflowNext.item.uuid) {
-                            Hooks.off("midi-qol.postCheckSaves", saveHook);
-                            Hooks.off("midi-qol.preTargeting", abortHook);
-                        }
-                    });
+                    }
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preTargeting", hook2);
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preTargeting", hook2);
+                }
+            });
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.item.uuid == args[0].item.uuid) {
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.careful = true;
                     } else {
                         workflowNext.metamagic = { careful: true };
                     }
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
@@ -298,14 +236,20 @@ try {
             });
         } else if (metamagic == "extended") {  
             // extended spell
-            let createHook = Hooks.on("createActiveEffect", async (effect) => {
+            let hook1 = Hooks.on("createActiveEffect", async (effect) => {
                 if (effect.origin.includes(args[0].actor.uuid)) {
-                    let effectHook = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
+                    let hookEf = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                         if (args[0].item.uuid == workflowNext.item.uuid) {
                             if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: effect.parent.uuid, updates: [{ _id: effect._id, duration: { seconds: (effect.duration.seconds ? effect.duration.seconds * 2 : null), turns: (effect.duration.turns ? effect.duration.turns * 2 : null), rounds: (effect.duration.rounds ? effect.duration.rounds * 2 : null), startTime: effect.duration.startTime, startTurn: effect.duration.startTurn, startRound: effect.duration.startRound } }] });
-                            Hooks.off("midi-qol.RollComplete", effectHook);
+                            Hooks.off("midi-qol.RollComplete", hookEf);
                         }
                     });
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
+                if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic != "extended") {
+                    Hooks.off("createActiveEffect", hook1);
+                    Hooks.off("midi-qol.preTargeting", hook2);
                 }
             });
             // update metamagic and resource for real roll
@@ -323,92 +267,51 @@ try {
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    Hooks.off("createActiveEffect", createHook);
                     Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
         } else if (metamagic == "heightened") {
             // heightened spell
-            let targetHook = Hooks.on("midi-qol.postPreambleComplete", async workflowNext => {
+            let heightenedDialog =  new Promise(async (resolve) => {
+                new Dialog({
+                    title: "Metamagic: Heightened Spell",
+                    content: `<p>Target a creature to weaken.</p>`,
+                    buttons: {
+                        Confirm: {
+                            label: "Confirm",
+                            callback: () => { resolve(Array.from(game.user?.targets)) },
+                        },
+                    },
+                    default: "Confirm",
+                    close: () => { resolve(false) },
+                }).render(true);
+            });
+            let targets = await heightenedDialog;
+            if (!targets || targets.length != 1) return ui.notifications.warn("Invalid number of targets selected");
+            const effectData = {
+                changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Metamagic, preTargetSave", priority: 20 }, { key: "flags.midi-qol.heightenedSpell", mode: 2, value: args[0].item.uuid, priority: 20 }],
+                disabled: false,
+                name: "Heightened Spell Save Disadvantage",
+                icon: heightenedItem.img
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
+            // update metamagic and resource for real roll
+            let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    let targetContent = "";
-                    [...workflowNext.targets].forEach((targetToken) => { 
-                        if (!targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
-                        targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
-                    });
-                    if (targetContent == "") return;
-                    const content = `
-                        <style>
-                        .target .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
-                        .target .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal; }
-                        .target .radio-label input { display: none; }
-                        .target img { border: 0px; width: 50px; height: 50px; flex: 0 0 50px; cursor: pointer; }
-                        .target [type=radio]:checked + img { outline: 2px solid #f00; }
-                        </style>
-                        <div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
-                            <p>Choose a target to impose disadvantage on:</p>
-                        </div>
-                        <form class="target">
-                        <div class="form-group" id="targets">
-                            ${targetContent}
-                        </div>
-                        </form>
-                        <script>
-                            $("img").mouseover(function(e) {
-                                let targetToken = canvas.tokens.get(e.target.id);
-                                targetToken.hover = true;
-                                targetToken.refresh();
-                            });
-                            $("img").mouseout(function(e) {
-                                let targetToken = canvas.tokens.get(e.target.id);
-                                targetToken.hover = false;
-                                targetToken.refresh();
-                            });
-                        </script>
-                    `;
-                    let dialog = await new Promise((resolve) => {
-                        new Dialog({
-                            title: "Metamagic: Heightened Spell",
-                            content: content,
-                            buttons: {
-                                Confirm: { 
-                                    icon: '<i class="fas fa-check"></i>',
-                                    label: "Confirm",
-                                    callback: () => {resolve($("input[type='radio'][name='target']:checked").val())}
-                                },
-                                Cancel: {
-                                    icon: '<i class="fas fa-times"></i>',
-                                    label: "Cancel",
-                                    callback: () => {resolve(false)}
-                                }
-                            },
-                            close: () => {resolve(false)}
-                        }).render(true);
-                    });
-                    let targetId = await dialog;
-                    if (!targetId) return;
-                    let target = canvas.tokens.get(targetId);
-                    const effectData = {
-                        changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.glhSqpcNqPJdTG3A, preTargetSave", priority: 20 }, { key: "flags.midi-qol.heightenedSpell", mode: 2, value: args[0].item.uuid, priority: 20 }],
-                        disabled: false,
-                        name: "Heightened Spell Save Disadvantage",
-                        icon: heightenedItem.img
-                    };
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.heigtened = true;
                     } else {
                         workflowNext.metamagic = { heightened: true };
                     }
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    Hooks.off("midi-qol.postPreambleComplete", targetHook);
+                    Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
             });
@@ -439,7 +342,7 @@ try {
             let type = await transmutedDialog;
             if (!type) return;
             args[0].workflow.newDefaultDamageType = type;
-            let rollHook = Hooks.on("midi-qol.preDamageRollComplete", async (workflowNext) => { // update damage roll to use new damage type
+            let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async (workflowNext) => { // update damage roll to use new damage type
                 if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic.transmuted) {
                     workflowNext.defaultDamageType = type;
                     let newDamageRoll = workflowNext.damageRoll;
@@ -452,7 +355,7 @@ try {
                     await workflowNext.setDamageRoll(newDamageRoll);
                 }
             });
-            let effectHook = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
+            let hook2 = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
                 if (effect.origin.includes(args[0].actor.uuid) && effect.changes.find(c => options.find(o => c.value.toLowerCase().includes(o.toLowerCase())))) {
                     let hookEf = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                         if (args[0].item.uuid == workflowNext.item.uuid && workflowNext.metamagic.transmuted) {
@@ -462,6 +365,13 @@ try {
                             Hooks.off("midi-qol.RollComplete", hookEf);
                         }
                     });
+                }
+            });
+            let hook3 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
+                if (workflowNext.item.uuid == args[0].item.uuid && !workflowNext.metamagic.transmuted) {
+                    Hooks.off("midi-qol.preDamageRollComplete", hook1);
+                    Hooks.off("createActiveEffect", hook2);
+                    Hooks.off("midi-qol.preTargeting", hook3);
                 }
             });
             // update metamagic and resource for real roll
@@ -479,8 +389,6 @@ try {
             });
             let abortHook = Hooks.on("midi-qol.preTargeting", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    Hooks.off("midi-qol.preDamageRollComplete", rollHook);
-                    Hooks.off("createActiveEffect", effectHook);
                     Hooks.off("midi-qol.preItemRoll", updateHook);
                     Hooks.off("midi-qol.preTargeting", abortHook);
                 }
@@ -564,8 +472,7 @@ try {
                 let type = terms[t].flavor ? terms[t].flavor.toLowerCase() : args[0].workflow.defaultDamageType.toLowerCase();
                 if (args[0].workflow.newDefaultDamageType && type == args[0].workflow.defaultDamageType.toLowerCase()) type = args[0].workflow.newDefaultDamageType;
                 if (args[0].workflow.metamagic?.transmuted && ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(type)) type = args[0].workflow.metamagic.transmuted;
-                termsContent += `
-                <label class='checkbox-label' for='die${t}${r}'>
+                termsContent += `<label class='checkbox-label' for='die${t}${r}'>
                     <input type='checkbox' id='die${t}${r}' name='die' value='${results[r].result},${terms[t].faces},${t}'/>
                     <tiv style="border:0px; witth: 50px; height:50px;">
                         <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
@@ -650,5 +557,8 @@ try {
         } else {
             args[0].workflow.metamagic = { empowered: diceLimit - rerolls.length };
         }
+    } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].item.uuid)) {
+        args[0].workflow.saveDetails.disadvantage = true;
+        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.name == "Heightened Spell Save Disadvantage").id] });
     }
 } catch (err) {console.error("Metamagic Macro - ", err);}
