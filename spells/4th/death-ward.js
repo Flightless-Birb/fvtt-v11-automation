@@ -46,5 +46,5 @@ try {
             Hooks.off("midi-qol.RollComplete", abortHook);
         });
     }
-} catch (err)  {console.error("Undead Fortitude Macro - ", err)}
+} catch (err)  {console.error("Death Ward Macro - ", err)}
 */

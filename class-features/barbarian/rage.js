@@ -2,6 +2,7 @@ try {
     const lastArg = args[args.length - 1];
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+    if (actor.items.find(i => i.name.includes("Persistent Rage"))) return;
     if (lastArg.macroPass == "preAttackRoll" && game.combat && !lastArg.actor.effects.find(e => e.name == "Rage (Has Attacked or Taken Damage)")) {
         const effectData = {
             name: "Rage (Has Attacked or Taken Damage)",
