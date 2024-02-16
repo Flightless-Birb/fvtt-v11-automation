@@ -90,7 +90,7 @@ try {
             // update metamagic and resource for real roll
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
+                    if (game.combat && game.dfreds) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
                     if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.quickened = true;

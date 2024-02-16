@@ -19,7 +19,7 @@ try {
     if (game.combat) {
         let dialog = new Promise((resolve) => {
             new Dialog({
-            title: "",
+            title: "Divine Fury",
             content: `<p>Use Divine Fury?</p>`,
             buttons: {
                 confirm: {

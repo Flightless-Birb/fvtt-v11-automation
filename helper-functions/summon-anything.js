@@ -4,6 +4,7 @@
 // cr = cr range - min and max dash separated or single value
 // amount = amount to summon default 1
 // expire = whether summon should expire at end of spell duration default true
+// stackable = whether summons are stackable default false
 
 try {
     if (args[0].macroPass == "postActiveEffects") {
@@ -11,6 +12,7 @@ try {
         let summonFilters = [];
         let summonAmount = 1;
         let expire = true;
+        let stackable = false;
         for (let f = 0; f < filters.length; f++) {
             const filter = filters[f]?.split("=");
             if (!filter || filter.length != 2) return ui.notifications.warn("Invalid Summon Filter Provided");
@@ -36,6 +38,9 @@ try {
                     break;
                 case "expire":
                     if (filterStrings[0]?.toLowerCase() == "false") expire = false;
+                    break;
+                case "stackable":
+                    if (filterStrings[0]?.toLowerCase() == "true") stackable = true;
                     break;
                 default:
                     return ui.notifications.warn("Invalid Summon Filter Provided");
@@ -74,7 +79,7 @@ try {
                 origin: args[0].item.uuid,
                 disabled: false,
                 duration: { seconds: seconds },
-                flags: { "midi-qol": { summonId: summonId, summonIds: summons.tokenIds } },
+                flags: { "midi-qol": { summonId: summonId, summonIds: summons.tokenIds }, "dae": { stackable: stackable ? "multi" : "noneName" } },
                 changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.vByCdcwI1TRFPAeD", priority: "20" }]
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
