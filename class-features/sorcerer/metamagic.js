@@ -51,6 +51,7 @@ try {
                 buttons: {
                     Confirm: {
                         label: "Confirm",
+                        icon: '<i class="fas fa-check"></i>',
                         callback: async () => {
                             let metamagic = $("input[type='radio'][name='metamagic']:checked").val();
                             consume = $(".consume").is(":checked");
@@ -59,6 +60,7 @@ try {
                     },
                     Cancel: {
                         label: "Cancel",
+                        icon: '<i class="fas fa-times"></i>',
                         callback: async () => {
                             resolve(false);
                         },
@@ -447,8 +449,8 @@ try {
                     let newDamageRoll = workflowNext.damageRoll;
                     newDamageRoll.terms.forEach(t => { 
                         if (options.includes(t.options.flavor)) {
-                            t.options.flavor = type;
                             t.formula.replace(t.options.flavor, type);
+                            t.options.flavor = type;
                         }
                     });
                     await workflowNext.setDamageRoll(newDamageRoll);

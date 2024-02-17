@@ -5,8 +5,8 @@ let rollHook = Hooks.on("midi-qol.preDamageRollStarted", async workflowNext => {
         workflowNext.defaultDamageType = type;
         let newDamageRoll = workflowNext.damageRoll;
         newDamageRoll.terms.forEach(t => { 
-            t.options.flavor = type;
             t.formula.replace(t.options.flavor, type);
+            t.options.flavor = type;
         });
         await args[0].workflow.setDamageRoll(newDamageRoll);
         Hooks.off("midi-qol.preDamageRollStarted", rollHook);

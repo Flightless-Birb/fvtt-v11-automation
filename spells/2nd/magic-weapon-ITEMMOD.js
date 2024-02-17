@@ -63,7 +63,7 @@ try {
         await weapon.setFlag("midi-qol", "magicWeapon", lastArg.efData._id);
         await weapon.update({
             name: weapon.name + " (Magic Weapon)",
-            system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""]]), "damage.versatile": weapon.system.damage.versatile + "+" + bonus }
+            system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""]]), "damage.versatile": weapon.system.damage.versatile ? weapon.system.damage.versatile + "+" + bonus : "" }
         });
     } else if (args[0] === "off") { 
         let weapon = actor.items.find(i => i.flags["midi-qol"].magicWeapon == lastArg.efData._id);
@@ -75,12 +75,13 @@ try {
             if (s.attackBonus) tempSystem.attackBonus = tempSystem.attackBonus + "+" + s.attackBonus;
             if (s.damageBonus) {
                 tempSystem.damage.parts = tempSystem.damage.parts.concat(s.damageBonus);
-                s.damageBonus.forEach(p => tempSystem.damage.versatile = tempSystem.damage.versatile + "+" + `${p[0]}` + (p[1] ? `[${p[1]}]` : ""));
+                if (tempSystem.damage.versatile) s.damageBonus.forEach(p => tempSystem.damage.versatile = tempSystem.damage.versatile + "+" + `${p[0]}` + (p[1] ? `[${p[1]}]` : ""));
             }
             if (s.dieReplace) {
                 const parts = tempSystem.damage.parts;
                 parts[0][0] = parts[0][0].replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
                 tempSystem.damage.parts = parts;
+                if (tempSystem.damage.versatile) tempSystem.damage.versatile = tempSystem.damage.versatile.replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
             }
         });
 		const tempProperties = mergeObject({ ada: false, amm: false, fin: false, fir: false, foc: false, hvy: false, lgt: false, lod: false, mgc: false, rch: false, rel: false, ret: false, sil: false, spc: false, thr: false, two: false, ver: false }, tempSystem.properties);

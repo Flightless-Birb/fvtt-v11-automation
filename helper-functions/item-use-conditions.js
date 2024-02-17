@@ -19,3 +19,5 @@
 // item targets
 !(workflow.targets.size>workflow.item.system.target.value?ui.notifications.warn(`Must have ${workflow.item.system.target.value} or fewer targets`):false)
 
+// must be raging
+!(workflow.actor.effects.find(e=>e.name.includes("Rage"))?ui.notifications.warn("Must be raging"):false)

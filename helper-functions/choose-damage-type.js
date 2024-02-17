@@ -29,8 +29,8 @@ try {
             workflowNext.defaultDamageType = type;
             let newDamageRoll = workflowNext.damageRoll;
             newDamageRoll.terms.forEach(t => { 
-                t.options.flavor = type;
                 t.formula.replace(t.options.flavor, type);
+                t.options.flavor = type;
             });
             await args[0].workflow.setDamageRoll(newDamageRoll);
         }
