@@ -275,10 +275,14 @@ try {
                 disabled: false,
                 name: "Distant Spell",
                 icon: "icons/skills/targeting/target-strike-triple-blue.webp",
-                duration: { seconds: 1 },
                 flags: { dae: { specialDuration: ["endCombat", "1Spell"] } }
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+            let effects = args[0].actor.effects.filter(e => e.name == "Distant Spell").map(e => e.id);
+            let checkHook = Hooks.on("midi-qol.preTargeting", async () => {
+                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: effects });
+                Hooks.off("midi-qol.preTargeting", checkHook);
+            });
             // update metamagic and resource for real roll
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {

@@ -11,8 +11,8 @@
 // checkIncapacitated - i.e., checkIncapacitated=true - WHETHER TARGTET MUST NOT BE INCAPACITATED
 
 try {
-	if (args[0].tag != "TargetOnUse" || args[0].macroPass != "isAttacked" || args[0].workflow.damageOnAttacked?.includes(args[0].options.actor.uuid)) return;
-    const damageItems = args[0].options.actor.flags["midi-qol"]?.damageOnAttacked?.replace(" ", "")?.split(";");
+	if (args[0].macroPass != "isAttacked" || args[0].workflow.damageOnAttacked?.includes(args[0].options.actor.uuid)) return;
+    const damageItems = args[0].options.actor.flags["midi-qol"]?.damageOnAttacked?.replaceAll(" ", "")?.replaceAll("\n", "")?.split(";");
     damageItems.forEach(async d => {
         const damageItem = d?.split(",");
         if (damageItem?.length < 2) return;
@@ -32,29 +32,29 @@ try {
         const killAnim = !killAnimValue || killAnimValue == "false" ? false : true;
         const checkIncapacitatedValue = damageItem.find(i => i?.includes("checkIncapacitated"))?.replace("checkIncapacitated=","");
         const checkIncapacitated = !checkIncapacitatedValue || checkIncapacitatedValue == "false" ? false : MidiQOL.checkIncapacitated(args[0].options.actor);
-        const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value.replace(" ", "").replace(";", "") == d));
+        const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value?.replaceAll(" ", "")?.replaceAll("\n", "")?.replaceAll(";", "") == d));
         const itemName = sourceEffect ? sourceEffect.name : "Damage";
         const itemImg = sourceEffect ? sourceEffect.icon : "icons/svg/explosion.svg";
         if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType, "killAnim =", killAnim);
         if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range || checkIncapacitated) return console.warn("Damage On Attacked conditions not met");
         if (isHit) {
-            let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
-                if (workflowNext.uuid === args[0].uuid && (workflowNext.hitTargets.size|| MidiQOL.configSettings().autoRollDamage != "always")) {
+            let damageHook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid && (workflowNext.hitTargets.size || MidiQOL.configSettings().autoRollDamage != "always")) {
                     await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
-                    Hooks.off("midi-qol.postActiveEffects", hook1);
+                    Hooks.off("midi-qol.RollComplete", damageHook);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowComplete => {
+            let abortHook = Hooks.on("midi-qol.preItemRoll", async workflowComplete => {
                 if (workflowComplete.uuid === args[0].uuid) {
-                    Hooks.off("midi-qol.RollComplete", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
+                    Hooks.off("midi-qol.RollComplete", damageHook);
+                    Hooks.off("midi-qol.preItemRoll", abortHook);
                 }
             });
         } else {
             await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
         }
-        args[0].workflow.damageOnAttacked = args[0].workflow.damageOnAttacked ? args[0].workflow.damageOnAttacked?.concat([args[0].options.actor.uuid]) : [args[0].options.actor.uuid];
     });
+    args[0].workflow.damageOnAttacked = args[0].workflow.damageOnAttacked ? args[0].workflow.damageOnAttacked?.concat([args[0].options.actor.uuid]) : [args[0].options.actor.uuid];
 } catch (err) {console.error("Damage On Attacked Macro - ", err)}
 
 async function applyDamage(actor, target, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim) {

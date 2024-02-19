@@ -66,10 +66,14 @@ try {
                 disabled: false,
                 name: "Lunging Attack",
                 icon: "icons/weapons/polearms/spear-hooked-spike.webp",
-                duration: { seconds: 1 },
                 flags: { dae: { specialDuration: ["endCombat", "1Attack", "1Hit"] } }
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+            let effects = args[0].actor.effects.filter(e => e.name == "Lunging Attack").map(e => e.id);
+            let checkHook = Hooks.on("midi-qol.preTargeting", async () => {
+                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: effects });
+                Hooks.off("midi-qol.preTargeting", checkHook);
+            });
 		} 
 	} if (args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";

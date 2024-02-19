@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "preActiveEffects" || !args[0].item.effects.find(e => e.name == "Rage")) return
+    if (args[0].macroPass != "preActiveEffects" || !args[0].item.effects.find(e => e.name == "Rage")) return
     let level  = actor?.classes?.barbarian?.system?.levels ?? 3;
     let size = actor.system.traits.size;
     let range = level > 13 ? 15 : 5;
