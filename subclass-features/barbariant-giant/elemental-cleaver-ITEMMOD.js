@@ -9,7 +9,7 @@ try {
                     if (lastArg.uuid == workflowNext.uuid) {
                         const changes = lastArg.actor.effects.find(e => e.id == effect.id).changes;
                         const effectData = {
-                            changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.bDqrPWLXLY5kURuQ", priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.bDqrPWLXLY5kURuQ, preDamageRollStarted", priority: 20 }],
+                            changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.bDqrPWLXLY5kURuQ", priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.bDqrPWLXLY5kURuQ, postDamageRollStarted", priority: 20 }],
                             disabled: false,
                             name: "Elemental Cleaver Infusion",
                             icon: "icons/weapons/axes/axe-battle-elemental-lava.webp",
@@ -24,17 +24,23 @@ try {
                 Hooks.off("createActiveEffect", createHook);
             }
         });
-    } else if (lastArg.macroPass == "preDamageRollStarted" && lastArg.actor.flags?.["midi-qol"]?.elementalCleaver && lastArg.item.flags?.["midi-qol"]?.elementalCleaver) {
+    } else if (lastArg.macroPass == "postDamageRollStarted" && lastArg.actor.flags?.["midi-qol"]?.elementalCleaver && lastArg.item.flags?.["midi-qol"]?.elementalCleaver) {
         let type = lastArg.actor.flags?.["midi-qol"]?.elementalCleaver;
-        let defaultDamageType = lastArg.damageRoll.terms[0].options.flavor;
         lastArg.workflow.newDefaultDamageType = type;
-        let newDamageRoll = lastArg.damageRoll;
-        newDamageRoll.terms.forEach(t => { 
-            if (t.options.flavor && t.options.flavor != defaultDamageType) return;
-            t.options.flavor = type;
+        let newDamageRolls = lastArg.workflow.damageRoll;
+        let newBonusDamageRolls = lastArg.workflow.bonusDamageRoll;
+        newDamageRolls.terms.forEach(t => { 
+            if (t.options.flavor && (t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase())) return;
             t.formula.replace(t.options.flavor, type);
+            t.options.flavor = type;
         });
-        await lastArg.workflow.setDamageRoll(newDamageRoll);
+        newBonusDamageRolls.terms.forEach(t => { 
+            if (t.options.flavor && (t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase())) return;
+            t.formula.replace(t.options.flavor, type);
+            t.options.flavor = type;
+        });
+        if (newDamageRolls) await lastArg.workflow.setDamageRoll(newDamageRolls);
+        if (newBonusDamageRolls) await lastArg.workflow.setBonusDamageRoll(newBonusDamageRolls);
     } else if (args[0] === "on") {
         const equipped = actor.items.filter(i => i.type === "weapon" && i.system.actionType === "mwak" && i.system.equipped && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
         let weaponContent = "";

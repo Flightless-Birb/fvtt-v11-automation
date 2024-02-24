@@ -5,7 +5,7 @@ try {
         if (!damage || !damageType) return;
         return { damageRoll: `${damage}[${damageType}]`, type: damageType, flavor: "Genie's Vessel" }
     }
-    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Genie's Vessel" && disabled == false))) return;
+    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always")  || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Genie's Vessel" && disabled == false))) return;
 	let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {

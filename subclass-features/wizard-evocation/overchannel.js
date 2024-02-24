@@ -1,16 +1,27 @@
 try {
     if (args[0].workflow.overchannel) {
-        let newDamageRoll = args[0].workflow.damageRoll;
-        newDamageRoll.terms.forEach(async t => {
+        let newDamageRolls = args[0].workflow.damageRoll;
+        let newBonusDamageRolls = args[0].workflow.bonusDamageRoll;
+        newDamageRolls.terms.forEach(t => { 
             if (!t.faces) return;
-            t.results.forEach(async r => {
-                if (r.result >= t.faces) return;
-                Object.assign(r, { rerolled: true, active: false });
+            t.results.forEach(d => {
+                if (d.result >= t.faces) return;
+                Object.assign(d, { rerolled: true, active: false });
                 t.results.push({ result: t.faces, active: true, hidden: true });
-                newDamageRoll._total = newDamageRoll._evaluateTotal();
+                r._total = r._evaluateTotal();
             });
-            await args[0].workflow.setDamageRoll(newDamageRoll);
         });
+        newBonusDamageRolls.terms.forEach(t => { 
+            if (!t.faces) return;
+            t.results.forEach(d => {
+                if (d.result >= t.faces) return;
+                Object.assign(d, { rerolled: true, active: false });
+                t.results.push({ result: t.faces, active: true, hidden: true });
+                r._total = r._evaluateTotal();
+            });
+        });
+        if (newDamageRolls) await args[0].workflow.setDamageRoll(newDamageRolls);
+        if (newBonusDamageRolls) await args[0].workflow.setBonusDamageRoll(newBonusDamageRolls);
     }
     if (args[0].macroPass != "preDamageRollComplete" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || args[0].item.type != "spell" || !args[0].item.system.school || args[0].spellLevel == 0 || args[0].spellLevel > 5 || !["msak", "rsak", "save", "other"].includes(args[0].item.system.actionType) || args[0].damageRoll.terms.find(t => ["healing", "temphp", "midi-none", ""].includes(t.flavor.toLowerCase())) || !(((item.flags?.["tidy5e-sheet"]?.parentClass.toLowerCase().includes("wizard")) || (args[0].item.system.chatFlavor.toLowerCase().includes("wizard"))) || (!args[0].item.flags?.["tidy5e-sheet"]?.parentClass && !args[0].item.system.chatFlavor && ["prepared", "always"].includes(args[0].item.system?.preparation?.mode)))) return;
     const uses = args[0].actor.flags["midi-qol"]?.overchannel;
@@ -42,17 +53,28 @@ try {
     });
     useFeat = await dialog;
     if (!useFeat) return;
-    let newDamageRoll = args[0].workflow.damageRoll;
-	newDamageRoll.terms.forEach(async t => {
-		if (!t.faces) return;
-		t.results.forEach(async r => {
-			if (r.result >= t.faces) return;
-			Object.assign(r, { rerolled: true, active: false });
+    let newDamageRolls = args[0].workflow.damageRoll;
+    let newBonusDamageRolls = args[0].workflow.bonusDamageRoll;
+    newDamageRolls.terms.forEach(t => { 
+        if (!t.faces) return;
+        t.results.forEach(d => {
+            if (d.result >= t.faces) return;
+            Object.assign(d, { rerolled: true, active: false });
             t.results.push({ result: t.faces, active: true, hidden: true });
-            newDamageRoll._total = newDamageRoll._evaluateTotal();
-		});
-		await args[0].workflow.setDamageRoll(newDamageRoll);
-	});
+            r._total = r._evaluateTotal();
+        });
+    });
+    newBonusDamageRolls.terms.forEach(t => { 
+        if (!t.faces) return;
+        t.results.forEach(d => {
+            if (d.result >= t.faces) return;
+            Object.assign(d, { rerolled: true, active: false });
+            t.results.push({ result: t.faces, active: true, hidden: true });
+            r._total = r._evaluateTotal();
+        });
+    });
+    if (newDamageRolls) await args[0].workflow.setDamageRoll(newDamageRolls);
+    if (newBonusDamageRolls) await args[0].workflow.setBonusDamageRoll(newBonusDamageRolls);
     if (uses && usesEffect) {
         const effectData = {
             changes: [{ key: "system.traits.dr.value", mode: 0, value: "-necrotic", priority: 20 }, { key: "system.traits.di.value", mode: 0, value: "-necrotic", priority: 20 }],

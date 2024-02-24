@@ -32,7 +32,7 @@ try {
 		}
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
 		args[0].workflow.dreadAmbusher = true;
-	} else if (args[0].tag == "DamageBonus" && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
+	} else if (args[0].tag == "DamageBonus" && args[0].workflow.dreadAmbusher) {
 		const diceMult = args[0].isCritical ? 2 : 1;
 		return { damageRoll: `${diceMult}d8`, flavor: "Dread Ambusher" }
 	} else if (args[0] == "each") {

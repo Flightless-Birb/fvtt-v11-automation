@@ -31,13 +31,13 @@ try {
 			duration: { seconds: 60 }
 		}
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
-    } else if (args[0].tag == "DamageBonus" && args[0].hitTargets.length && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && MidiQOL.computeDistance(workflow.token, args[0].hitTargets[0]) <= 10) {
+    } else if (args[0].tag == "DamageBonus" && (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && MidiQOL.computeDistance(workflow.token, args[0].hitTargets[0]) <= 10) {
         let diceNum = +args[0].actor.flags["midi-qol"]?.spiritShroudDice ?? 1;
         let diceMult = args[0].isCritical ? 2 : 1;
         let damageType = args[0].actor.flags["midi-qol"]?.spiritShroudType ?? "radiant";
         args[0].workflow.spiritShroud = true;
         return { damageRoll: `${diceNum * diceMult}d8[${damageType}]`, type: damageType, flavor: "Spirit Shroud" }
-    } else if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && MidiQOL.computeDistance(workflow.token, args[0].hitTargets[0]) <= 10) {
+    } else if (args[0].macroPass == "postActiveEffects" && (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && MidiQOL.computeDistance(workflow.token, args[0].hitTargets[0]) <= 10) {
         const effectData = {
 			changes: [{ key: "system.traits.di.value", mode: 0, value: "healing", priority: 20 }],
 			disabled: false,

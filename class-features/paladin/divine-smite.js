@@ -5,7 +5,7 @@ try {
         let diceMult = args[0].isCritical ? 2: 1;
         return { damageRoll: `${dice * diceMult}d8[radiant]`, type: "radiant", flavor: "Divine Smite" }
     }
-    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll || (workflow.item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.rch ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return;
+    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !["mwak"].includes(args[0].item.system.actionType) || (workflow.item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.rch ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return;
     let options = "";
     Object.keys(args[0].actor.system.spells).forEach(key => {
         if (key == "pact" && args[0].actor.system.spells.pact.value > 0) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic [Level ${args[0].actor.system.spells.pact.level}] (${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max} Slots)</option>`;

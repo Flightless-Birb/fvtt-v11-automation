@@ -5,7 +5,7 @@ try {
         let damageType = args[0].actor.flags["midi-qol"]?.divineStrike ?? "radiant";
         return { damageRoll: `${dice * diceMult}d8[${damageType}]`, type: damageType, flavor: "Divine Strikes" }
     }
-    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || args[0].item.type != "weapon" || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Divine Strike" && !e.disabled))) return;
+    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || args[0].item.type != "weapon" || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Divine Strike" && !e.disabled))) return;
 	let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {

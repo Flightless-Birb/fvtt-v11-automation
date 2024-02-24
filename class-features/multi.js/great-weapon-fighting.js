@@ -1,5 +1,5 @@
 try {
-	if (args[0].macroPass != "postDamageRollStarted" || !args[0].damageRoll || args[0].item.system.actionType != "mwak" || !args[0].item.system.properties?.hvy) return;
+	if (args[0].macroPass != "postDamageRollStarted" || args[0].item.system.actionType != "mwak" || !args[0].item.system.properties?.hvy) return;
 	let newDamageRolls = args[0].workflow.damageRoll;
 	let newBonusDamageRolls = args[0].workflow.bonusDamageRoll;
 	newDamageRolls.terms.forEach(t => { 

@@ -453,18 +453,14 @@ try {
                     let newDamageRolls = workflowNext.damageRoll;
                     let newBonusDamageRolls = workflowNext.bonusDamageRoll;
                     newDamageRolls.terms.forEach(t => { 
-                        console.error("before", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
                         if (t.options.flavor && !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())) return;
                         t.formula.replace(t.options.flavor, type);
                         t.options.flavor = type;
-                        console.error("after", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
                     });
                     newBonusDamageRolls.terms.forEach(t => { 
-                        console.error("before", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
                         if (t.options.flavor && (t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase() || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase()))) return;
                         t.formula.replace(t.options.flavor, type);
                         t.options.flavor = type;
-                        console.error("after", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
                     });
                     if (newDamageRolls) await workflowNext.setDamageRoll(newDamageRolls);
                     if (newBonusDamageRolls) await workflowNext.setBonusDamageRoll(newBonusDamageRolls);

@@ -56,7 +56,7 @@ try {
 		args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${args[0].actor.system.abilities.wis.mod}[Foe Slayer]`;
 		args[0].workflow.setAttackRoll(args[0].attackRoll);
 		args[0].workflow.foeSlayer = "attack";
-	} else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll) {
+	} else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
 		let useFeat = true;
 		if (game.combat) {
 			let dialog = new Promise((resolve) => {

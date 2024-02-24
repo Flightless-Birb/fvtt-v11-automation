@@ -28,13 +28,19 @@
         args[0].workflow.awakenedSpellbook = type;
         let rollHook = Hooks.on("midi-qol.preDamageRollStarted", async workflowNext => { // update damage roll to use new damage type
             if (workflowNext.uuid == args[0].uuid) {
-                workflowNext.defaultDamageType = type;
-                let newDamageRoll = workflowNext.damageRoll;
-                newDamageRoll.terms.forEach(t => { 
+                let newDamageRolls = workflowNext.damageRoll;
+                let newBonusDamageRolls = workflowNext.bonusDamageRoll;
+                newDamageRolls.terms.forEach(t => { 
                     t.formula.replace(t.options.flavor, type);
                     t.options.flavor = type;
                 });
-                await args[0].workflow.setDamageRoll(newDamageRoll);
+                newBonusDamageRolls.terms.forEach(t => { 
+                    if (t.options.flavor && t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase()) return;
+                    t.formula.replace(t.options.flavor, type);
+                    t.options.flavor = type;
+                });
+                if (newDamageRolls) await workflowNext.setDamageRoll(newDamageRolls);
+                if (newBonusDamageRolls) await workflowNext.setBonusDamageRoll(newBonusDamageRolls);
             }
         });
         let createHook = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
