@@ -6,7 +6,7 @@ try {
     let targetContent = "";
     args[0].damageList.forEach((target) => { 
         let targetToken = canvas.tokens.get(target.tokenId);
-        if (!targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
+        if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
         targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
     });
     if (targetContent == "") return;

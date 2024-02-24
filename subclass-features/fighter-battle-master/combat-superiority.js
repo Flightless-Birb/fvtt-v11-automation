@@ -1,7 +1,20 @@
 try {
     const usesItem = args[0].actor.items.find(i => i.name == "Combat Superiority" && i.system.uses.value);
-	const die = args[0].actor.system.scale["battle-master"]["combat-superiority"];
+	const die = args[0].actor.system?.scale?.["battle-master"]?.["combat-superiority"] ?? 6;
 	const saveDC = 8 + args[0].actor.system.attributes.prof + (args[0].actor.system.abilities.dex.mod > args[0].actor.system.abilities.str.mod ? args[0].actor.system.abilities.dex.mod : args[0].actor.system.abilities.str.mod);
+    if (args[0].macroPass == "preCheckHits" && args[0].workflow.combatSuperiority == "precisionAttack") {
+        let bonusRoll = await new Roll('0 + ' + `1${die}[Precision Attack]`).evaluate({async: true});
+        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
+        for (let i = 1; i < bonusRoll.terms.length; i++) {
+            args[0].attackRoll.terms.push(bonusRoll.terms[i]);
+        }
+        args[0].attackRoll._total += bonusRoll.total;
+        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}[Precision Attack]`;
+		await args[0].workflow.setAttackRoll(args[0].attackRoll);
+    } else if (args[0].tag == "DamageBonus" && ["brace", "feintingAttack", "lungingAttack", "quickToss"].includes(args[0].workflow.combatSuperiority)) {
+        let diceMult = args[0].isCritical ? 2 : 1;
+        return { damageRoll: `${diceMult}${die}`, flavor: "Combat Superiority" }
+    }
     if (!usesItem || !die) return;
 	if (args[0].macroPass == "preTargeting" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
@@ -178,31 +191,17 @@ try {
 		args[0].workflow.combatSuperiority = maneuver;
 		await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
 		if (maneuver == "precisionAttack") {
-			let bonusRoll = await new Roll('0 + ' + `1${die}`).evaluate({async: true});
+			let bonusRoll = await new Roll('0 + ' + `1${die}[Precision Attack]`).evaluate({async: true});
 			if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
 			for (let i = 1; i < bonusRoll.terms.length; i++) {
 				args[0].attackRoll.terms.push(bonusRoll.terms[i]);
 			}
 			args[0].attackRoll._total += bonusRoll.total;
-			args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}`;
+			args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}[Precision Attack]`;
 			await args[0].workflow.setAttackRoll(args[0].attackRoll);
 		}
-    } else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
-        if (args[0].workflow.combatSuperiority) {
-			if (["brace", "feintingAttack", "lungingAttack", "quickToss"].includes(args[0].workflow.combatSuperiority)) {
-				let diceMult = args[0].isCritical ? 2 : 1;
-                let bonusRoll = await new Roll('0 + ' + `${diceMult}${die}`).evaluate({async: true});
-				if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-				for (let i = 1; i < bonusRoll.terms.length; i++) {
-					args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-				}
-				args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${die}`;
-				args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-				await args[0].workflow.setDamageRoll(args[0].damageRoll);
-			}
-			return;
-		}
-		let maneuverContent = "";
+    } else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && !args[0].workflow.combatSuperiority) {
+        let maneuverContent = "";
         let disarmingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Disarming Attack");
         if (disarmingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="disarmingAttack"><img src="${disarmingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Disarming Attack</label>`;
         let distractingStrikeItem = args[0].actor.items.find(i => i.name == "Maneuver: Distracting Strike");
@@ -262,14 +261,7 @@ try {
 		await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
 		if (["sweepingAttack"].includes(maneuver)) return;
         let diceMult = args[0].isCritical ? 2 : 1;
-		let bonusRoll = await new Roll('0 + ' + `${diceMult}${die}`).evaluate({async: true});
-		if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-		for (let i = 1; i < bonusRoll.terms.length; i++) {
-			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-		}
-		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${die}`;
-		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-		await args[0].workflow.setDamageRoll(args[0].damageRoll);
+		return { damageRoll: `${diceMult}${die}`, flavor: "Combat Superiority" }
 	} else if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
 		const itemData = {
 			type: "feat",

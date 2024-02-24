@@ -89,14 +89,7 @@ try {
     if (lastArg.tag == "DamageBonus" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
         const damageType = actor.flags["midi-qol"]?.hexDamageType ? actor.flags["midi-qol"]?.hexDamageType : "necrotic";
-        let bonusRoll = await new Roll('0 + ' + `${diceMult}d6[${damageType}]`).evaluate({async: true});
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d6[${damageType}]`;
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
+        return { damageRoll: `${diceMult}d6[${damageType}]`, type: damageType, flavor: "Hex" }
     }
     //remove reapply item
     if (args[0] == "off" && lastArg.efData.name == "Hex Damage Bonus") {

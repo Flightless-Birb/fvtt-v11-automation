@@ -3,15 +3,7 @@ try {
         let damage = args[0].actor.system.attributes.prof;
         let damageType = args[0].actor.flags["midi-qol"]?.genieKind;
         if (!damage || !damageType) return;
-        let bonusRoll = await new Roll('0 + ' + `${damage}[${damageType}]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        return;
+        return { damageRoll: `${damage}[${damageType}]`, type: damageType, flavor: "Genie's Vessel" }
     }
     if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Genie's Vessel" && disabled == false))) return;
 	let useFeat = true;
@@ -51,13 +43,6 @@ try {
 	let damage = args[0].actor.system.attributes.prof;
     let damageType = args[0].actor.flags["midi-qol"]?.genieKind;
     if (!damage || !damageType) return;
-	let bonusRoll = await new Roll('0 + ' + `${damage}[${damageType}]`).evaluate({async: true});
-    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-    for (let i = 1; i < bonusRoll.terms.length; i++) {
-        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-    }
-    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
-    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-    await args[0].workflow.setDamageRoll(args[0].damageRoll);
 	args[0].workflow.geniesVessel = true;
+    return { damageRoll: `${damage}[${damageType}]`, type: damageType, flavor: "Genie's Vessel" }
 } catch (err) {console.error("Genie's Vessel Macro - ", err)}

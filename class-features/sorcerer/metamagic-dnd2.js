@@ -447,17 +447,27 @@ try {
             });
             let type = await transmutedDialog;
             if (!type) return;
-            let rollHook = Hooks.on("midi-qol.preDamageRollStarted", async (workflowNext) => { // update damage roll to use new damage type
+            let rollHook = Hooks.on("midi-qol.postDamageRollStarted", async (workflowNext) => { // update damage roll to use new damage type
+                console.error(workflowNext.bonusDamageRoll)
                 if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic.transmuted) {
-                    workflowNext.defaultDamageType = type;
-                    let newDamageRoll = workflowNext.damageRoll;
-                    newDamageRoll.terms.forEach(t => { 
-                        if (options.includes(t.options.flavor)) {
-                            t.formula.replace(t.options.flavor, type);
-                            t.options.flavor = type;
-                        }
+                    let newDamageRolls = workflowNext.damageRoll;
+                    let newBonusDamageRolls = workflowNext.bonusDamageRoll;
+                    newDamageRolls.terms.forEach(t => { 
+                        console.error("before", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
+                        if (t.options.flavor && !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())) return;
+                        t.formula.replace(t.options.flavor, type);
+                        t.options.flavor = type;
+                        console.error("after", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
                     });
-                    await workflowNext.setDamageRoll(newDamageRoll);
+                    newBonusDamageRolls.terms.forEach(t => { 
+                        console.error("before", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
+                        if (t.options.flavor && (t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase() || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase()))) return;
+                        t.formula.replace(t.options.flavor, type);
+                        t.options.flavor = type;
+                        console.error("after", t, (!t.options.flavor || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())))
+                    });
+                    if (newDamageRolls) await workflowNext.setDamageRoll(newDamageRolls);
+                    if (newBonusDamageRolls) await workflowNext.setBonusDamageRoll(newBonusDamageRolls);
                 }
             });
             let createHook = Hooks.on("createActiveEffect", async (effect) => { // update effects to use new damage type
@@ -563,7 +573,7 @@ try {
         let diceLimit = args[0].workflow.metamagic?.empowered ?? Math.max(1, args[0].actor.system.abilities.cha.mod);
         if (!diceLimit) return;
         let termsContent = "";
-        let terms = args[0].damageRoll?.terms;
+        let terms = args[0].damageRoll.terms;
         for (let t = 0; t < terms?.length; t++) {
             if (!terms[t].faces) continue;
             let results = terms[t].results;
@@ -580,7 +590,7 @@ try {
                 `;
             }
         }
-        let bonusTerms = args[0].bonusDamageRoll?.terms;
+        let bonusTerms = args[0].bonusDamageRoll.terms;
         for (let t = 0; t < bonusTerms?.length; t++) {
             if (!bonusTerms[t].faces) continue;
             let results = bonusTerms[t].results;
@@ -597,6 +607,7 @@ try {
                 `;
             }
         }
+        if (termsContent == "") return;
         let content = `
         <style>
         .dice .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
@@ -635,7 +646,7 @@ try {
                             let checked = $("input[type='checkbox'][name='die']:checked"); 
                             for (let c = 0; c < checked.length; c++) {
                                 let rollData = checked[c].value.split(",");
-                                rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2], type: rollData[3] }); 
+                                rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2], rollType: rollData[3] }); 
                             } 
                             consume = $(".consume").is(":checked");
                             resolve(rerolls);
@@ -653,22 +664,21 @@ try {
         });
         let rerolls = await empoweredDialog;
         if (!rerolls.length) return;
-        let damageRoll = args[0].workflow.damageRoll;
-        let bonusDamageRoll = args[0].workflow.bonusDamageRoll;
-        let newDamageRoll = args[0].damageRoll;
-        let newBonusDamageRoll = args[0].bonusDamageRoll;
+        let newDamageRolls = args[0].damageRoll;
+        let newBonusDamageRolls = args[0].bonusDamageRoll;
         rerolls.forEach(async r => {
             let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
             if (game.dice3d) game.dice3d.showForRoll(newRoll);
-            let replaceRoll = damageRoll.terms[r.dieIndex].results.find(d => d.result == parseInt(r.result) && d.active);
+            let damageRoll = args[0].workflow[r.rollType];
+            let replaceRoll = damageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active && !d.rerolled);
             if (replaceRoll) {
                 Object.assign(replaceRoll, { rerolled: true, active: false });
                 damageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
                 damageRoll._total = damageRoll._evaluateTotal();
             }
         });
-        //await args[0].workflow.setDamageRoll(newDamageRoll);
-        //await args[0].workflow.setDamageRoll(newDamageRoll);
+        if (newDamageRolls) await args[0].workflow.setDamageRoll(newDamageRolls);
+        if (newBonusDamageRolls) await args[0].workflow.setBonusDamageRoll(newBonusDamageRolls);
         if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         if (args[0].workflow.metamagic) {
             args[0].workflow.metamagic.empowered = diceLimit - rerolls.length;

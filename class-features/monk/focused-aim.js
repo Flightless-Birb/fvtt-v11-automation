@@ -1,11 +1,11 @@
 try {
     if (args[0].workflow.focusedAim) {
-        let bonusRoll = await new Roll('0 + ' + `${2 * args[0].workflow.focusedAim}`).evaluate({async: true});
+        let bonusRoll = await new Roll('0 + ' + `${2 * args[0].workflow.focusedAim}[Focused Aim]`).evaluate({async: true});
         for (let i = 1; i < bonusRoll.terms.length; i++) {
             args[0].attackRoll.terms.push(bonusRoll.terms[i]);
         }
         args[0].attackRoll._total += bonusRoll.total;
-        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * ki}`;
+        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * args[0].workflow.focusedAim}[Focused Aim]`;
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
         return;
     }
@@ -50,12 +50,12 @@ try {
     ki = await dialog;
     if (!ki) return;
     if (ki > usesItem.system.uses.value) return ui.notifications.warn("Not enough Ki Points remaining");
-    let bonusRoll = await new Roll('0 + ' + `${2 * ki}`).evaluate({async: true});
+    let bonusRoll = await new Roll('0 + ' + `${2 * ki}[Focused Aim]`).evaluate({async: true});
     for (let i = 1; i < bonusRoll.terms.length; i++) {
         args[0].attackRoll.terms.push(bonusRoll.terms[i]);
     }
     args[0].attackRoll._total += bonusRoll.total;
-    args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * ki}`;
+    args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${2 * ki}[Focused Aim]`;
     await args[0].workflow.setAttackRoll(args[0].attackRoll);
     args[0].workflow.focusedAim = ki;
     await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - ki) });

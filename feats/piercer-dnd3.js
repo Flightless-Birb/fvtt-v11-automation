@@ -98,10 +98,10 @@ try {
             let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
             if (game.dice3d) game.dice3d.showForRoll(newRoll);
             let damageRoll = args[0].workflow[r.rollType][r.rollIndex];
-            let replaceRoll = damageRoll.terms[r.dieIndex].results.find(d => d.result == parseInt(r.result) && d.active);
+            let replaceRoll = damageRoll.terms[r.dieIndex].results.find(d => d.result == parseInt(r.result) && d.active && !d.rerolled);
             if (replaceRoll) {
                 Object.assign(replaceRoll, { rerolled: true, active: false });
-                damageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
+                damageRoll.terms[r.dieIndex].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
                 damageRoll._total = damageRoll._evaluateTotal();
             }
         });

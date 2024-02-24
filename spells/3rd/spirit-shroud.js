@@ -35,16 +35,8 @@ try {
         let diceNum = +args[0].actor.flags["midi-qol"]?.spiritShroudDice ?? 1;
         let diceMult = args[0].isCritical ? 2 : 1;
         let damageType = args[0].actor.flags["midi-qol"]?.spiritShroudType ?? "radiant";
-        let bonusRoll = await new Roll('0 + ' + `${diceNum * diceMult}d8[${damageType}]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceNum * diceMult}d8[${damageType}]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        console.error(args[0].workflow.damageRoll)
         args[0].workflow.spiritShroud = true;
+        return { damageRoll: `${diceNum * diceMult}d8[${damageType}]`, type: damageType, flavor: "Spirit Shroud" }
     } else if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && MidiQOL.computeDistance(workflow.token, args[0].hitTargets[0]) <= 10) {
         const effectData = {
 			changes: [{ key: "system.traits.di.value", mode: 0, value: "healing", priority: 20 }],

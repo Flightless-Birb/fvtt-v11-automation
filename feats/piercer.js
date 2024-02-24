@@ -1,14 +1,7 @@
 try {
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.faces && t.flavor.toLowerCase() == "piercing")) {
-        let faces = args[0].damageRoll.terms.find(t => t.faces && t.flavor == "Piercing").faces;
-        let bonusRoll = await new Roll('0 + ' + `1d${faces}[piercing]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `1d${faces}[piercing]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
+        let faces = args[0].damageRoll.terms.find(t => t.faces && t.flavor.toLowerCase() == "piercing").faces;
+        return { damageRoll: `1d${faces}`, flavor: "Piercer" }
     } else if (args[0].macroPass == "preDamageRollComplete" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
         let terms = args[0].damageRoll.terms;
         let termsContent = "";

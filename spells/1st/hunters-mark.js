@@ -48,14 +48,7 @@ try {
     //apply damage bonus
     if (lastArg.tag == "DamageBonus" && lastArg.damageRoll && ["mwak","rwak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.huntersMark?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
-        let bonusRoll = await new Roll('0 + ' + `${diceMult}d6`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d6`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
+        return { damageRoll: `${diceMult}d6`, flavor: "Hunter's Mark" }
     }
     //remove reapply item
     if (args[0] == "off" && lastArg.efData.name == "Hunter's Mark Damage Bonus") {

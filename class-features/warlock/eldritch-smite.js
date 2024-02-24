@@ -2,15 +2,7 @@ try {
     if (args[0].workflow.eldritchSmite) {
         let dice = args[0].workflow.eldritchSmite + 1;
         let diceMult = args[0].isCritical ? 2: 1;
-        let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[force]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[force]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        return;
+        return { damageRoll: `${dice * diceMult}d8[force]`, type: "force", flavor: "Eldritch Smite" }
     }
     if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.name == "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
@@ -65,13 +57,6 @@ try {
     }
     let dice = args[0].actor.system.spells.pact.level + 1;
     let diceMult = args[0].isCritical ? 2: 1;
-    let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[force]`).evaluate({async: true});
-    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-    for (let i = 1; i < bonusRoll.terms.length; i++) {
-        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-    }
-    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[force]`;
-    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-	await args[0].workflow.setDamageRoll(args[0].damageRoll);
-    args[0].workflow.eldritchSmite = args[0].actor.system.spells.pact.level;
+    args[0].workflow.eldritchSmite = +args[0].actor.system.spells.pact.level;
+    return { damageRoll: `${dice * diceMult}d8[force]`, type: "force", flavor: "Eldritch Smite" }
 } catch (err) {console.error("Eldritch Smite Macro - ", err)}

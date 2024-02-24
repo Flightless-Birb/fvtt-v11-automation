@@ -2,14 +2,7 @@ try {
 	if (args[0].workflow.favoredFoe) {
 		const faces = args[0].actor.system.scale?.ranger?.["favored-foe"] ?? 4;
 		const diceMult = args[0].isCritical ? 2: 1;
-		let bonusRoll = await new Roll('0 + ' + `${diceMult}${faces}`).evaluate({async: true});
-		for (let i = 1; i < bonusRoll.terms.length; i++) {
-			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-		}
-		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${faces}`;
-		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-		await args[0].workflow.setDamageRoll(args[0].damageRoll);
-		return;
+		return { damageRoll: `${diceMult}${faces}`, flavor: "Favored Foe" }
 	}
 	if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Favored Foe" && !e.disabled)) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId)) return;
 	const item = args[0].actor.items.find(i => i.name == "Favored Foe" && i.system.uses.value);
@@ -25,14 +18,8 @@ try {
 		}
 		const faces = args[0].actor.system.scale?.ranger?.["favored-foe"] ?? 4;
 		const diceMult = args[0].isCritical ? 2: 1;
-		let bonusRoll = await new Roll('0 + ' + `${diceMult}${faces}`).evaluate({async: true});
-		for (let i = 1; i < bonusRoll.terms.length; i++) {
-			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-		}
-		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${faces}`;
-		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-		await args[0].workflow.setDamageRoll(args[0].damageRoll);
 		args[0].workflow.favoredFoe = true;
+		return { damageRoll: `${diceMult}${faces}`, flavor: "Favored Foe" }
 	} else if (item && !(args[0].targets[0].actor.effects.find(e => e.name == "Favored Foe") && args[0].targets[0].actor.flags["midi-qol"]?.favoredFoe.includes(args[0].actor.uuid)) && args[0].targets[0].actor.uuid != args[0].actor.uuid) {
 		let dialog = new Promise((resolve) => {
             new Dialog({
@@ -68,13 +55,7 @@ try {
 		}
 		const faces = args[0].actor.system.scale?.ranger?.["favored-foe"] ?? "d4";
 		const diceMult = args[0].isCritical ? 2: 1;
-		let bonusRoll = await new Roll('0 + ' + `${diceMult}${faces}`).evaluate({async: true});
-		if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-		for (let i = 1; i < bonusRoll.terms.length; i++) {
-			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-		}
-		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${faces}`;
-		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-		await args[0].workflow.setDamageRoll(args[0].damageRoll);
+		args[0].workflow.favoredFoe = true;
+		return { damageRoll: `${diceMult}${faces}`, flavor: "Favored Foe" }
 	}
 } catch (err) {console.error("Favored Foe Macro - ", err)}

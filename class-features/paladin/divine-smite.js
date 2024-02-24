@@ -3,15 +3,7 @@ try {
         let typeBonus = ["undead", "fiend"].find(t => MidiQOL.typeOrRace(args[0].targets[0]?.actor.uuid)?.toLowerCase().includes(t));
         let dice = Math.min(args[0].workflow.divineSmite + 1 + (typeBonus ? 1 : 0), 6);
         let diceMult = args[0].isCritical ? 2: 1;
-        let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[radiant]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[radiant]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        return;
+        return { damageRoll: `${dice * diceMult}d8[radiant]`, type: "radiant", flavor: "Divine Smite" }
     }
     if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll || (workflow.item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.rch ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return;
     let options = "";
@@ -63,13 +55,6 @@ try {
     let typeBonus = ["undead", "fiend"].find(t => MidiQOL.typeOrRace(args[0].targets[0]?.actor.uuid)?.toLowerCase().includes(t));
     let dice = Math.min(+slot.level + 1 + (typeBonus ? 1 : 0), 6);
     let diceMult = args[0].isCritical ? 2: 1;
-    let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[radiant]`).evaluate({async: true});
-    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-    for (let i = 1; i < bonusRoll.terms.length; i++) {
-        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-    }
-    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[radiant]`;
-    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-    await args[0].workflow.setDamageRoll(args[0].damageRoll);
-    args[0].workflow.divineSmite = slot.level;
+    args[0].workflow.divineSmite = +slot.level;
+    return { damageRoll: `${dice * diceMult}d8[radiant]`, type: "radiant", flavor: "Divine Smite" }
 } catch (err)  {console.error("Divine Smite Macro - ", err)}

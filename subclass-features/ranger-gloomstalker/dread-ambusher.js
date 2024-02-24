@@ -34,14 +34,7 @@ try {
 		args[0].workflow.dreadAmbusher = true;
 	} else if (args[0].tag == "DamageBonus" && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
 		const diceMult = args[0].isCritical ? 2 : 1;
-		let bonusRoll = await new Roll('0 + ' + `${diceMult}d8`).evaluate({async: true});
-		for (let i = 1; i < bonusRoll.terms.length; i++) {
-			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-		}
-		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d8`;
-		if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-		await args[0].workflow.setDamageRoll(args[0].damageRoll);
+		return { damageRoll: `${diceMult}d8`, flavor: "Dread Ambusher" }
 	} else if (args[0] == "each") {
 		const effectData = {
 			name: "Dread Ambusher Movement Bonus",

@@ -3,7 +3,10 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (actor.items.find(i => i.name.includes("Persistent Rage"))) return;
-    if (lastArg.macroPass == "preAttackRoll" && game.combat && !lastArg.actor.effects.find(e => e.name == "Rage (Has Attacked or Taken Damage)")) {
+    if (lastArg.tag == "DamageBonus" && lastArg.item.system.actionType == "mwak" && (lastArg.item.system.ability == "str" || (!lastArg.item.system.ability && lastArg.actor.system.abilities.str.mod > lastArg.actor.system.abilities.dex.mod)) && !(lastArg.item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(lastArg.workflow.token, lastArg.targets[0], false) / 5) > (lastArg.item.system.properties.rch ? 10 : 5) + (lastArg.actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) {
+        const damage = args[0].actor.system.scale?.barbarian?.rage ?? 2;
+        return { damageRoll: `${damage}`, flavor: "Rage" }
+    } if (lastArg.macroPass == "preAttackRoll" && game.combat && !lastArg.actor.effects.find(e => e.name == "Rage (Has Attacked or Taken Damage)")) {
         const effectData = {
             name: "Rage (Has Attacked or Taken Damage)",
             icon: "icons/creatures/abilities/mouth-teeth-human.webp",

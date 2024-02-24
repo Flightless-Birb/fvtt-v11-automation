@@ -1,0 +1,3 @@
+try {
+	if (args[0].tag == "DamageBonus" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].item.system.properties?.thr && (args[0].item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.rch ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return { damageRoll: "2", flavor: "Thrown Weapon Fighting" };
+} catch (err)  {console.error("Fighting Style: Thrown Weapon Fighting Macro - ", err)}

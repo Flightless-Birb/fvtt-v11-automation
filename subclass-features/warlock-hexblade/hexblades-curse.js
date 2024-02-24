@@ -1,2 +1,3 @@
-
-if (args[0] != "off") return
+try {
+    if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak", "save", "other"].includes(args[0].item.system.actionType) && args[0].targets.find(t => t?.actor?.effects?.find(e => e.name.includes("Hexblade's Curse") && !e.disabled && e.origin.includes(args[0].actor.uuid)))) return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Hexblade's Curse" }
+} catch (err) {console.error("Hexblade's Curse Macro - ", err)}

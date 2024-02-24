@@ -1,16 +1,6 @@
 try {
     if (args[0].workflow.furyOfTheSmall == "attack") {
-        let damage = args[0].actor.system.attributes.prof;
-        let damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType;
-        let bonusRoll = await new Roll('0 + ' + `${damage}[${damageType}]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        return;
+        return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Fury of the Small" }
     }
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
         const usesItem = args[0].actor.items.find(i => i.name == "Fury of the Small" && i.system.uses.value);
@@ -47,22 +37,13 @@ try {
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
         }
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-        let damage = args[0].actor.system.attributes.prof;
-        let damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType;
-        let bonusRoll = await new Roll('0 + ' + `${damage}[${damageType}]`).evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
-        for (let i = 1; i < bonusRoll.terms.length; i++) {
-            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
-        }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${damage}[${damageType}]`;
-        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
-        await args[0].workflow.setDamageRoll(args[0].damageRoll);
         args[0].workflow.furyOfTheSmall = "attack";
+        return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Fury of the Small" }
     } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)  && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 
             let targetToken = canvas.tokens.get(target.tokenId);
-            if (!targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
+            if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
             targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
         });
         if (targetContent == "") return;

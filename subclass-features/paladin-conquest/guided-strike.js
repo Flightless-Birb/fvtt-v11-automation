@@ -1,11 +1,11 @@
 try {
     if (args[0].workflow.guidedStrike) {
-        let bonusRoll = await new Roll('0 + ' + '10').evaluate({async: true});
+        let bonusRoll = await new Roll('0 + ' + '10[Guided Strike]').evaluate({async: true});
         for (let i = 1; i < bonusRoll.terms.length; i++) {
             args[0].attackRoll.terms.push(bonusRoll.terms[i]);
         }
         args[0].attackRoll._total += bonusRoll.total;
-        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + '10';
+        args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + '10[Guided Strike]';
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
         return;
     }
@@ -39,12 +39,12 @@ try {
     });
     useFeat = await dialog;
     if (!useFeat) return;
-    let bonusRoll = await new Roll('0 + ' + '10').evaluate({async: true});
+    let bonusRoll = await new Roll('0 + ' + '10[Guided Strike]').evaluate({async: true});
     for (let i = 1; i < bonusRoll.terms.length; i++) {
         args[0].attackRoll.terms.push(bonusRoll.terms[i]);
     }
     args[0].attackRoll._total += bonusRoll.total;
-    args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + '10';
+    args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + '10[Guided Strike]';
     await args[0].workflow.setAttackRoll(args[0].attackRoll);
     args[0].workflow.guidedStrike = true;
     await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
