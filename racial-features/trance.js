@@ -45,12 +45,15 @@ try {
         const optionContent = options.map((o) => { return `<option value="${o.value}">${o.name}</option>` });
         let dialog = new Promise((resolve,) => {
             new Dialog({
-                title: "Knowledge of the Ages: Choose a Tool/Skill",
-                content: `<div><select name="profs"}>${optionContent}</select></div>`,
+                title: "Trance: Choose two Tools/Skills",
+                content: `
+                <div><select name="profs-one"}>${optionContent}</select></div>
+                <div><select name="profs-two"}>${optionContent}</select></div>
+                `,
                 buttons: {
                     Confirm: {
                         label: "Confirm",
-                        callback: () => {resolve($("[name=profs]")[0].value)},
+                        callback: () => {resolve([$("[name=profs-one]")[0].value, $("[name=profs-two]")[0].value])},
                     },
                     Cancel: {
                         label: "Cancel",
@@ -61,17 +64,16 @@ try {
                 close: () => {resolve(false)}
             }).render(true);
         });
-        let prof = await dialog;
-        if (!prof) return;
+        let profs = await dialog;
+        if (!profs) return;
         const effectData = {
-            name: "Channel Divinity: Knowledge of the Ages",
-            icon: "icons/tools/navigation/compass-plain-blue.webp",
+            name: "Trance",
+            icon: "icons/creatures/eyes/humanoid-single-yellow.webp",
             origin: args[0].item.uuid,
-            changes: [{ key: prof, mode: 4, value: "1", priority: 20 }],
+            changes: [{ key: profs[0], mode: 4, value: "1", priority: 20 }, { key: profs[1], mode: 4, value: "1", priority: 20 }],
             disabled: false,
-            duration: { seconds: 600 },
-            flags: { dae: { stackable: "noneName" } }
+            flags: { dae: { specialDuration: ["longRest"], stackable: "noneName" } }
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-} catch (err) {console.error("Knowledge of the Ages Macro - ", err)}
+} catch (err) {console.error("Trance Macro - ", err)}
