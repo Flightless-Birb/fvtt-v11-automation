@@ -1,12 +1,12 @@
 try {
-	if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
+	if (args[0].macroPass != "postActiveEffects") return;
 	const targets = await args[0].targets.filter(t => t.actor && MidiQOL.typeOrRace(t.actor) && t.actor.system.attributes.hp.value && !t.actor.effects.find(e => e.name == "Unconscious" && !e.disabled)).sort((prev, curr) => prev.actor.system.attributes.hp.value < curr.actor.system.attributes.hp.value ? -1 : 1);
 	let sleepHp = args[0].damageTotal;
 	let sleepTargets = [];
 	for (let target of targets) {
 		const hp = target.actor.system.attributes.hp.value;
 		const immuneType = ["undead", "construct"].find(c => target.actor.system.details?.race?.includes(c) || target.actor.system.details?.type?.value?.includes(c));
-		const immuneCondition = target.actor.system.traits.ci.value.has("unconscious") || target.actor.system.traits.ci.value.has("charmed") || target.actor.system.traits.ci.custom.includes("Magical Sleep");
+		const immuneCondition = target.actor.system.traits.ci.value.has("unconscious") || target.actor.system.traits.ci.custom.toLowerCase().includes("unconscious") || target.actor.system.traits.ci.value.has("charmed") || target.actor.system.traits.ci.custom.toLowerCase().includes("charmed") || target.actor.system.traits.ci.custom.includes("Magical Sleep");
 		if (immuneType || immuneCondition) {
 			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"></div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 			continue;

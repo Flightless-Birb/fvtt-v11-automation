@@ -323,8 +323,7 @@ try {
                     duration: { seconds: 7, rounds: 1, turns: 1 },
                     flags: { dae: { specialDuration: ["turnEndSource", "combatEnd"] } }
                 }];
-                itemData.system.activation.condition = "!target.traits.ci.value.has('frightened')";
-                itemData.flags["midi-qol"].effectActivation = true;
+                itemData.flags["midi-qol"].effectCondition = 'target.failedSave&&!(target.traits.ci.has("frightened")||target.traits.ci.custom.toLowerCase().includes("frightened"))';
             } else if (args[0].workflow.combatSuperiority == "pushingAttack") {
                 itemData.name = "icons/skills/melee/strike-flail-destructive-yellow.webp";
                 itemData.img = "Pushing Attack";
@@ -343,8 +342,7 @@ try {
                     icon: "icons/svg/falling.svg", 
                     name: "Prone"
                 }];
-                itemData.system.activation.condition = "!target.effects.find(e=>e.name=='Prone')";
-                itemData.flags["midi-qol"].effectActivation = true;
+                itemData.flags["midi-qol"].effectCondition = 'target.failedSave&&!target.effects.find(e=>e.name=="Prone")&&!(target.traits.ci.has("prone")||target.traits.ci.custom.toLowerCase().includes("prone"))';
             }
 		    const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
                 await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });

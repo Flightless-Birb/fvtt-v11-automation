@@ -50,7 +50,7 @@ try {
             duration: { rounds: 1, turns: 1 },
             flags: { dae: { specialDuration: ["turnEndSource"] } }
         }],
-        flags: { autoanimations: { isEnabled: false } }
+        flags: { autoanimations: { isEnabled: false }, "midi-qol": { effectCondition: 'target.failedSave&&!(target.traits.ci.has("stunned")||target.traits.ci.custom.toLowerCase().includes("stunned"))' } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: target });
     await MidiQOL.completeItemRoll(item, { showFullCard: false, createWorkflow: true, configureDialog: false });

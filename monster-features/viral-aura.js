@@ -1,6 +1,6 @@
 try {
 	const lastArg = args[args.length - 1];
-	if (args[0] != "each" || lastArg.actor.flags["midi-qol"]?.viralAuraImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned")) return;
+	if (args[0] != "each" || lastArg.actor.flags["midi-qol"]?.viralAuraImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned") || lastArg.actor.system.traits.ci.custom.toLowerCase().includes("poisoned")) return;
 	const itemData = {
         name: "Viral Aura",
         img: "icons/magic/acid/dissolve-bone-ribs-skull.webp",

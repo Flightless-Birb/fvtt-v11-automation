@@ -1,6 +1,6 @@
 try {
 	const lastArg = args[args.length - 1];
-	if (args[0] != "each" || lastArg.actor.flags["midi-qol"]?.stenchImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned")) return;
+	if (args[0] != "each" || lastArg.actor.flags["midi-qol"]?.stenchImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned") || lastArg.actor.system.traits.ci.custom.toLowerCase().includes("poisoned")) return;
 	const itemData = {
         name: "Stench",
         img: "icons/commodities/tech/smoke-bomb-purple.webp",

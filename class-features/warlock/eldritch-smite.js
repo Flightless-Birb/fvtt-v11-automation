@@ -47,7 +47,7 @@ try {
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    if (args[0].targets[0]?.actor?.system.details.size != "grg" && !args[0].targets[0]?.actor?.effects.find(e => e.name === "Prone")) {
+    if (args[0].targets[0]?.actor?.system.details.size != "grg" && !args[0].targets[0]?.actor?.effects.find(e => e.name === "Prone") && !(args[0].targets[0]?.actor?.system?.traits?.ci?.value?.has("prone") || args[0].targets[0]?.actor?.system?.traits?.ci?.custom?.toLowerCase()?.includes("prone"))) {
         let effectData = {
             disabled: false,
             changes: [{key: "StatusEffect", mode: 0, value: "Convenient Effect: Prone", priority: 20}],

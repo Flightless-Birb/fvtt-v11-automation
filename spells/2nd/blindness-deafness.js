@@ -23,7 +23,7 @@ try {
     const rollId = args[0].item._id + '-' + args[0].itemCardId;
     args[0].targets.forEach(async t => {
         const effect = t?.actor.effects.find(e => e.origin == args[0].item.uuid && !e.changes.find(e => e.key == "flags.dae.deleteUuid"));
-        if (!effect) return;
+        if (!effect || t?.actor?.system?.traits?.ci?.value?.has(condition.toLowerCase()) || t?.actor?.system?.traits?.ci?.custom?.toLowerCase()?.includes(condition.toLowerCase())) return;
         const effectData = {
 			changes: [{ key: "StatusEffect", mode: 0, value: `Convenient Effect: ${condition}`, priority: 20 }],
 			disabled: false,

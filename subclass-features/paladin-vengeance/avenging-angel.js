@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 	const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
-    if (!((args[0] == "on" && game.combat?.current?.tokenId == args[0].tokenId) || args[0] == "each") || actor.system.traits.ci.value.has("frightened") || actor.id == source.id) return;
+    if (!((args[0] == "on" && game.combat?.current?.tokenId == args[0].tokenId) || args[0] == "each") || actor.system.traits.ci.value.has("frightened") || actor.system.traits.ci.custom.toLowerCase().includes("frightened") || actor.id == source.id) return;
 	const itemData = {
         name: "Avenging Angel",
         img: "icons/creatures/mammals/bat-giant-tattered-purple.webp",

@@ -7,7 +7,7 @@ try {
             icon: args[0].item.img
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
-    } else if (args[0].macroPass == "postActiveEffects" && !args[0].failedSaves.length && !args[0].targets[0].actor.system.traits.ci.value.has("frightened")) {
+    } else if (args[0].macroPass == "postActiveEffects" && !args[0].failedSaves.length && !args[0].targets[0].actor.system.traits.ci.value.has("frightened") && !args[0].targets[0].actor.system.traits.ci.custom.toLowerCase().includes("frightened")) {
         const effectData = {
             changes: [{ key: "system.attributes.movement.all", mode: 0, value: "/2", priority: 20 }],
             disabled: false,

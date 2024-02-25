@@ -3,7 +3,7 @@ try {
         let updateHook = Hooks.on("midi-qol.preTargetDamageApplication", async (tokenNext, damageNext) => {
             if (tokenNext.actor.uuid != args[0].actor.uuid || damageNext.workflow.item.uuid != args[0].item.uuid) return;
             if (damageNext.damageItem.oldHP < 1 || damageNext.damageItem.newHP != 0) return;
-            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: actor.effects.filter(e => e.name == "Death Ward").map(e => e.id) });
+            await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: { _id: args[0].actor.effects.find(e => e.name == "Death Ward").id, disabled: true } });
             ChatMessage.create({ content: "Death Ward activates, causing the target to drop to 1 hit point instead of 0" });
             damageNext.damageItem.newHP = 1;
             damageNext.damageItem.hpDamage = damageNext.damageItem.oldHP - damageNext.damageItem.newHP;
@@ -24,7 +24,7 @@ try {
         let updateHook = Hooks.on("midi-qol.preTargetDamageApplication", async (tokenNext, damageNext) => {
             if (tokenNext.actor.uuid != args[0].actor.uuid || damageNext.workflow.item.uuid != args[0].item.uuid) return;
             if (damageNext.damageItem.oldHP < 1 || damageNext.damageItem.newHP != 0) return;
-            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: actor.effects.filter(e => e.name == "Death Ward").map(e => e.id) });
+            await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: { _id: args[0].actor.effects.filter(e => e.name == "Death Ward").id, disabled: true } });
             ChatMessage.create({ content: "Death Ward activates, causing the target to drop to 1 hit point instead of 0" });
             let hpUpdateHook = Hooks.on("preUpdateActor", async (actor, changes, options) => {
                 if (actor.uuid != args[0].actor.uuid) return;
