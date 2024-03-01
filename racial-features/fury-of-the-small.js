@@ -2,13 +2,16 @@ try {
     if (args[0].workflow.furyOfTheSmall == "attack") {
         return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Fury of the Small" }
     }
-    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
+    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
         const usesItem = args[0].actor.items.find(i => i.name == "Fury of the Small" && i.system.uses.value);
         if (!usesItem) return;
         let dialog = new Promise((resolve) => {
             new Dialog({
             title: "Fury of the Small",
-            content: `<p>Use Fury of the Small to deal additional damage?</p>`,
+            content: `
+            <p>Use Fury of the Small to deal additional damage?</p>
+            <p>(${usesItem.system.uses.value} Uses Remaining)</p>
+            `,
             buttons: {
                 confirm: {
                     icon: '<i class="fas fa-check"></i>',

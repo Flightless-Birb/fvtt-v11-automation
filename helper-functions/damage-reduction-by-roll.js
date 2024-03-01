@@ -1,5 +1,5 @@
 try {
-	if (args[0].macroPass != "postActiveEffects" || !MidiQOL.configSettings().doReactions) return;
+	if (args[0].macroPass != "postActiveEffects" || !MidiQOL.configSettings().doReactions || !args[0].workflowOptions.sourceItemUuid) return;
 	const effectData = {
 		changes: [{ key: "flags.midi-qol.DR.all", mode: 2, value: `${args[0].damageRoll.total}`, priority: 20 }],
 		disabled: false,

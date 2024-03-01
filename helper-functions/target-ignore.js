@@ -1,13 +1,13 @@
 // Target Ignore Construct/Undead
 try {
-    await game.user.updateTokenTargets(args[0].targets.filter(t => ["undead", "construct"].find(c => !MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))).map(t => t.id));
-    workflow.targets = new Set(args[0].targets.filter(t => ["undead", "construct"].find(c => !MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))))
+    await game.user.updateTokenTargets(args[0].targets.filter(t => !["undead", "construct"].find(c => MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))).map(t => t.id));
+    workflow.targets = new Set(args[0].targets.filter(t => !["undead", "construct"].find(c => MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))))
 } catch (err) {console.error("Target Ignore Macro - ", err)}
 
 // Target Ignore Demon
 try {
-    await game.user.updateTokenTargets(args[0].targets.filter(t => ["demon"].find(c => !MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))).map(t => t.id));
-    workflow.targets = new Set(args[0].targets.filter(t => ["demon"].find(c => !MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))))
+    await game.user.updateTokenTargets(args[0].targets.filter(t => !["demon"].find(c => MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))).map(t => t.id));
+    workflow.targets = new Set(args[0].targets.filter(t => !["demon"].find(c => MidiQOL.typeOrRace(t.actor)?.toLowerCase()?.includes(c))))
 } catch (err) {console.error("Target Ignore Macro - ", err)}
 
 // Target Ignore Non Extraplanar

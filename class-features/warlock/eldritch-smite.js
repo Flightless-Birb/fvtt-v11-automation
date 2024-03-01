@@ -56,7 +56,7 @@ try {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
     }
     let dice = args[0].actor.system.spells.pact.level + 1;
-    let diceMult = args[0].isCritical ? 2: 1;
+    let diceMult = args[0].isCritical ? 2 : 1;
     args[0].workflow.eldritchSmite = +args[0].actor.system.spells.pact.level;
     return { damageRoll: `${dice * diceMult}d8[force]`, type: "force", flavor: "Eldritch Smite" }
 } catch (err) {console.error("Eldritch Smite Macro - ", err)}

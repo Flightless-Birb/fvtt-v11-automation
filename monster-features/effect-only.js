@@ -27,8 +27,9 @@ MidiQOL.computeDistance(canvas.tokens.get(tokenId),canvas.tokens.get(targetId),f
 //--------- assassiante - flags.midi-qol.advantage.attack.all + flags.midi-qol.critical.mwak
 //game.combat?.round===1&&game.combat.turn<Object.entries(game.combat.turns).find(i=>i[1].tokenId===game.user.targets?.first().id)[0]
 //game.combat?.round===1&&game.user.targets?.first()?.actor?.effects?.find(e=>e.label==="Surprised")
-workflow?.targets?.size&&game.combat?.round===1&&game.combat.turn<Object.entries(game.combat.turns).find(t=>t[1].tokenId==targetId)[0]
-workflow?.targets?.size&&game.combat?.round===1&&workflow?.targets&&canvas.tokens.get(targetId).actor?.effects?.find(e=>e.name=="Surprised")
+workflow?.targets?.size&&game?.combat?.round===1&&game.combat.turn<Object.entries(game.combat.turns).find(t=>t[1].tokenId==targetId)[0]
+//crit doesn't work, workflow and targetId aren't passed as arguments
+workflow?.targets?.size&&game?.combat?.round===1&&canvas.tokens.get(targetId).actor?.effects?.find(e=>e.name=="Surprised")
 
 //-------blur flags.midi-qol.grants.disadvantage.attack.all
 //MidiQOL.getDistance(workflow.token,[...workflow.targets][0],false)>Math.max(workflow.actor.attributes.senses.blindsight,workflow.actor.attributes.senses.tremorsense,workflow.actor.attributes.senses.truesight)
@@ -89,6 +90,8 @@ canvas.tokens.get(tokenId)?.actor?.items?.find(i=>i.id==workflow?.itemId)?.effec
 canvas.tokens.get(tokenId)?.actor?.items?.find(i=>i.id==workflow?.itemId)?.effects?.find(e=>["turned"].find(s=>e.name.toLowerCase().includes(s))||e.changes?.find(c=>["turned"].find(s=>c.value.toLowerCase().includes(s))))||workflow?.targets&&canvas.tokens.get(targetId).actor?.effects?.find(e=>(e.name==workflow?.item?.name||e.changes?.find(c=>c.key=="flags.midi-qol.OverTime"&&c.value.replaceAll(" ","").includes(`label=${workflow.item.name.replaceAll(" ","")}`)))&&e.changes?.find(c=>["turned"].find(s=>c.value.toLowerCase().includes(s))))
 //-heart of hruggek > charmed, frightened, paralyzed, poisoned, stunned, unconcsious
 canvas.tokens.get(tokenId)?.actor?.items?.find(i=>i.id==workflow?.itemId)?.effects?.find(e=>["charmed","frightened","paralyzed","poisoned","stunned","unconscious"].find(s=>e.name.toLowerCase().includes(s))||e.changes?.find(c=>["charmed","frightened","paralyzed","poisoned","stunned","unconscious"].find(s=>c.value.toLowerCase().includes(s))))||workflow?.targets&&canvas.tokens.get(targetId).actor?.effects?.find(e=>(e.name==workflow?.item?.name||e.changes?.find(c=>c.key=="flags.midi-qol.OverTime"&&c.value.replaceAll(" ","").includes(`label=${workflow.item.name.replaceAll(" ","")}`)))&&e.changes?.find(c=>["charmed","frightened","paralyzed","poisoned","stunned","unconscious"].find(s=>c.value.toLowerCase().includes(s))))
+//-formation tactics > charmed frightened, grappled, restrained while ally within 5 ft
+canvas.tokens.get(tokenId)?.actor?.items?.find(i=>i.id==workflow?.itemId)?.effects?.find(e=>["charmed","frightened","grappled","restrained"].find(s=>e.name.toLowerCase().includes(s))||e.changes?.find(c=>["charmed","frightened","grappled","restrained"].find(s=>c.value.toLowerCase().includes(s))))||workflow?.targets&&canvas.tokens.get(targetId).actor?.effects?.find(e=>(e.name==workflow?.item?.name||e.changes?.find(c=>c.key=="flags.midi-qol.OverTime"&&c.value.replaceAll(" ","").includes(`label=${workflow.item.name.replaceAll(" ","")}`)))&&e.changes?.find(c=>["charmed","frightened","grappled","restrained"].find(s=>c.value.toLowerCase().includes(s))))&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(targetId)?.document?.disposition&&t.id!=targetId&&MidiQOL.computeDistance(t,canvas.tokens.get(targetId),false)<10)
 
 
 //-holy nimbus > spells by fiends/undead

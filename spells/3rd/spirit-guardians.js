@@ -1,41 +1,20 @@
 try {
     const lastArg = args[args.length - 1];
-    if (lastArg.macroPass == "preActiveEffects" && lastArg.item.effects.find(e => e.name == "Spirit Guardians")) {
-        const damageType = lastArg.workflow.newDefaultDamageType ? lastArg.workflow.newDefaultDamageType : lastArg.workflow.defaultDamageType.toLowerCase() != "radiant" ? lastArg.workflow.defaultDamageType : lastArg.actor.system.details.alignment.toLowerCase().includes("evil") ? "necrotic" : "radiant";
-        let hook1 = Hooks.on("createActiveEffect", async (effect) => {
-            if (effect.name == "Spirit Guardians" && effect.parent.uuid == lastArg.actor.uuid) {
-                let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
-                    if (lastArg.uuid == workflowNext.uuid) {
-                        let changes = lastArg.actor.effects.find(e => e.id == effect.id).changes;
-                        changes.forEach(c => { c.value = c.value.replace("radiant", damageType); });
-                        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: lastArg.actor.uuid, updates: [{ _id: effect.id, changes: changes }] });
-                        Hooks.off("midi-qol.RollComplete", hook2);
-                    }
-                });
-                Hooks.off("createActiveEffect", hook1);
-            }
-        });
-    } else if (args[0] == "on" && !isNaN(args[1]) && !isNaN(args[3]) && !lastArg.efData.origin.includes(lastArg.actorUuid) && game.combat && lastArg.tokenId == game.combat?.current?.tokenId) {
-        const tokenOrActor = await fromUuid(lastArg.actorUuid);
-        const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-        const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
-        const itemData = {
-            name: "Spiritual Guardians",
-            img: "icons/magic/light/projectile-bolts-salvo-white.webp",
-            type: "spell",
-            flags: { midiProperties: { magicdam: true, magiceffect: true, halfdam: true }, autoanimations: { isEnabled: false } },
-            system: {
-                level: 0,
-                activation: { type: "special" },
-                target: { value: 1, type: "creature" },
-                actionType: "save",
-                damage: { parts: [[`${args[1]}d8`, args[2]]] },
-                save: { ability: "wis", dc: args[3], scaling: "flat" }
-            }
+    if (lastArg.macroPass != "preActiveEffects" || !lastArg.item.effects.find(e => e.name == "Spirit Guardians")) return;
+    const damageType = lastArg.workflow.newDefaultDamageType ? lastArg.workflow.newDefaultDamageType : lastArg.workflow.defaultDamageType.toLowerCase() != "radiant" ? lastArg.workflow.defaultDamageType : lastArg.actor.system.details.alignment.toLowerCase().includes("evil") ? "necrotic" : "radiant";
+    let hook1 = Hooks.on("createActiveEffect", async (effect) => {
+        if (effect.name == "Spirit Guardians" && effect.parent.uuid == lastArg.actor.uuid) {
+            let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
+                if (lastArg.uuid == workflowNext.uuid) {
+                    let changes = lastArg.actor.effects.find(e => e.id == effect.id).changes;
+                    changes.forEach(c => { c.value = c.value.replace("radiant", damageType); });
+                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: lastArg.actor.uuid, updates: [{ _id: effect.id, changes: changes }] });
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                }
+            });
+            Hooks.off("createActiveEffect", hook1);
         }
-        const damageItem = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
-        await MidiQOL.completeItemUse(damageItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
-    }
+    });
 } catch (err) {console.error("Spirit Guardians Macro - ", err)}
 
 /*

@@ -3,7 +3,7 @@ try {
         let damageType = args[0].actor.flags["midi-qol"]?.celestialRevelation ? args[0].actor.flags["midi-qol"]?.celestialRevelation : "radiant";
         return { damageRoll: `${args[0].actor.system.attributes.prof}`, type: damageType, flavor: "Celestial Revelation" }
     }
-    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
+    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
         let useFeat = true;
         if (game.combat) {
             let dialog = new Promise((resolve) => {
