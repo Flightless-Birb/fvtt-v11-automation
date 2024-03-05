@@ -52,9 +52,9 @@ workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeO
 workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(targetId)?.document?.disposition&&t.id!=targetId&&t.actor.items.find(i=>i.system?.armor?.type=="shield"&&i.system?.equipped)&&MidiQOL.computeDistance(t,canvas.tokens.get(targetId),false)<10)
 
 //------underwater flags.midi-qol.disadvantage.attack.mwak/rwak flags.midi-qol.fail.attack.mwak/rwak
-!["dagger","javelin","shortsword","spear","trident"].includes(item?.baseItem)&&!
-!["handcrossbow","lightcrossbow","heavycrossbow","net","dart"].includes(item?.baseItem)
-MidiQOL.checkRange(workflow.item,workflow.token,[...workflow.targets],false).range>MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)
+workflow?.targets?.size&&!["dagger","javelin","shortsword","spear","trident"].includes(item?.baseItem)&&!
+workflow?.targets?.size&&!["handcrossbow","lightcrossbow","heavycrossbow","net","dart"].includes(item?.baseItem)&&!workflow.actor.traits
+workflow?.targets?.size&&MidiQOL.checkRange(workflow.item,workflow.token,[...workflow.targets],false).range>MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)
 
 //-----resistance to condition/type of item > flags.midi-qol.advantage.ability.save.all
 //-charmed
