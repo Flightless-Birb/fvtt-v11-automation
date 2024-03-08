@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag == "DamageBonus" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].item.system.ability == "str" || (!args[0].item.system.ability && args[0].actor.system.abilities.str.mod > args[0].actor.system.abilities.dex.mod)) && args[0].item.system.properties?.thr && (args[0].item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.rch ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) {
+    if (args[0].tag == "DamageBonus" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].item.system.ability == "str" || (!args[0].item.system.ability && args[0].actor.system.abilities.str.mod > args[0].actor.system.abilities.dex.mod)) && args[0].item.system.properties.includes("thr") && (args[0].item.system.actionType == "rwak" || 5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.includes("rch") ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) {
         const damage = args[0].actor.system.scale?.barbarian?.rage ?? 2;
         return { damageRoll: `${damage}`, flavor: "Giants Havoc" }
     } else if (args[0].macroPass == "preActiveEffects" && args[0].item.effects.find(e => e.name == "Rage")) {

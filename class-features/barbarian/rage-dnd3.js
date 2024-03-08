@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (actor.items.find(i => i.name.includes("Persistent Rage"))) return;
-    if (lastArg.tag == "DamageBonus" && lastArg.item.system.actionType == "mwak" && (lastArg.item.system.ability == "str" || (!lastArg.item.system.ability && actor.system.abilities.str.mod > actor.system.abilities.dex.mod)) && !(5 * Math.floor(MidiQOL.computeDistance(lastArg.workflow.token, lastArg.targets[0], false) / 5) > (lastArg.item.system.properties.rch ? 10 : 5) + (actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) {
+    if (lastArg.tag == "DamageBonus" && lastArg.item.system.actionType == "mwak" && (lastArg.item.system.ability == "str" || (!lastArg.item.system.ability && actor.system.abilities.str.mod > actor.system.abilities.dex.mod)) && !(5 * Math.floor(MidiQOL.computeDistance(lastArg.workflow.token, lastArg.targets[0], false) / 5) > (lastArg.item.system.properties.has("rch") ? 10 : 5) + (actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) {
         const damage = args[0].actor.system.scale?.barbarian?.rage ?? 2;
         return { damageRoll: `${damage}`, flavor: "Rage" }
     } if (lastArg.macroPass == "preAttackRoll" && game.combat && !actor.effects.find(e => e.name == "Rage (Has Attacked or Taken Damage)")) {

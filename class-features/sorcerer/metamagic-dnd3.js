@@ -424,7 +424,7 @@ try {
         } else if (metamagic == "transmuted") {
             // transmuted spell
             let options = ["Acid", "Cold", "Fire", "Lightning", "Poison", "Thunder"];
-            const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
+            const optionContent = options.map((o) => { return `<option value="${o.toLowerCase()}">${o}</option>` });
             const content = `
             <div class="form-group">
                 <label>Damage Types: </label>
@@ -456,6 +456,7 @@ try {
                             if (t.options.flavor && !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase())) return;
                             t.formula.replace(t.options.flavor, type);
                             t.options.flavor = type;
+                            t.flavor = type
                         });
                     });
                     newBonusDamageRolls.forEach(async r => {
@@ -463,6 +464,7 @@ try {
                             if (t.options.flavor && (t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase() || !options.find(o => o.toLowerCase() == t.options.flavor.toLowerCase()))) return;
                             t.formula.replace(t.options.flavor, type);
                             t.options.flavor = type;
+                            t.flavor = type;
                         });
                     });
                     if (newDamageRolls) await workflowNext.setDamageRolls(newDamageRolls);
@@ -585,7 +587,7 @@ try {
                             <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                             <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                         </tiv>
-                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.newDefaultDamageType.charAt(0).toUpperCase() ?? args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.newDefaultDamageType.toLowerCase().slice(1) ?? args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.damageRolls[0].options.type.charAt(0).toUpperCase() + args[0].workflow.damageRolls[0].options.type.toLowerCase().slice(1)})</p>
                     </label>
                     `;
                 }
@@ -604,7 +606,7 @@ try {
                             <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                             <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                         </tiv>
-                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.newDefaultDamageType.charAt(0).toUpperCase() ?? args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.newDefaultDamageType.toLowerCase().slice(1) ?? args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.damageRolls[0].options.type.charAt(0).toUpperCase() + args[0].workflow.damageRolls[0].options.type.toLowerCase().slice(1)})</p>
                     </label>
                     `;
                 }

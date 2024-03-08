@@ -1,7 +1,7 @@
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
     const summonId = args[0].item._id + '-' + args[0].itemCardId;
-    const damageType = args[0].workflow.defaultDamageType ? args[0].workflow.defaultDamageType.toLowerCase() : "fire";
+    const damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType ?? "fire";
     let hook = Hooks.on("summonComplete", async (summonIdNext, summons) => {
         if (summonId != summonIdNext) return;
         summons.tokenIds.forEach(async (t) => { 

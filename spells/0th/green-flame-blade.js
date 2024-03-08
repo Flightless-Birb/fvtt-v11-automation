@@ -40,7 +40,7 @@ try {
 	let weaponId = await dialog;
 	if (!weaponId) return;
 	const weapon = args[0].actor.items.find(i => i.id == weaponId);
-	const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.parts": cantripDice > 1 ? weapon.system.damage.parts.concat([[`${cantripDice - 1}d8`, args[0].workflow.defaultDamageType]]) : weapon.system.damage.parts, "system.damage.versatile": weapon.system.damage.versatile && cantripDice > 1 ? weapon.system.damage.versatile + `${cantripDice - 1}d8[${args[0].workflow.defaultDamageType}]` : "" });
+	const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.parts": cantripDice > 1 ? weapon.system.damage.parts.concat([[`${cantripDice - 1}d8`, args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType]]) : weapon.system.damage.parts, "system.damage.versatile": weapon.system.damage.versatile && cantripDice > 1 ? weapon.system.damage.versatile + `${cantripDice - 1}d8[${args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType}]` : "" });
 	const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
 	attackItem.system.prof = weapon.system.prof;
 	const attackWorkflow = await MidiQOL.completeItemRoll(attackItem, { versatile: args[0].workflow.pressedKeys.versatile, showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
@@ -65,7 +65,7 @@ try {
 							activation: { type: "special" },
 							target: { value: 1, type: "creature" },
 							actionType: "other",
-							damage: { parts: [[`${cantripDice > 0 ? (cantripDice - 1) + "d8 + " + mod : mod}`, args[0].workflow.defaultDamageType]] }
+							damage: { parts: [[`${cantripDice > 0 ? (cantripDice - 1) + "d8 + " + mod : mod}`, args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType]] }
 						}
 					}
 					const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: args[0].actor });

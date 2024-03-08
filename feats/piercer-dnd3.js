@@ -1,9 +1,9 @@
 try {
-    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (args[0].damageRolls.find(r => r.terms.find(t => t.flavor.toLowerCase() == "piercing")) || args[0].bonusDamageRolls.find(r => r.terms.find(t => t.flavor.toLowerCase() == "piercing")))) {
+    if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (args[0].damageRolls.find(r => r.options.type == "piercing") || args[0].bonusDamageRolls.find(r => r.options.type == "piercing"))) {
         let faces = args[0].damageRolls.find(r => r.terms.find(t => t.flavor.toLowerCase() == "piercing"))?.faces;
         if (!faces) return;
-        return { damageRoll: `1d${faces}[piercing]`, type: "piercing", flavor: "Piercer" }
-    } else if (args[0].macroPass == "DamageRollComplete" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (args[0].damageRolls.find(r => r.terms.find(t => t.flavor.toLowerCase() == "piercing")) || args[0].bonusDamageRolls.find(r => r.terms.find(t => t.flavor.toLowerCase() == "piercing"))) && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
+        return { damageRoll: `1d${faces}`, flavor: "Piercer" }
+    } else if (args[0].macroPass == "preDamageRollComplete" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (args[0].damageRolls.find(r => r.options.type == "piercing") || args[0].bonusDamageRolls.find(r => r.options.type == "piercing")) && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
         let termsContent = "";
         for (let d = 0; d < args[0].workflow.damageRolls?.length; d++) {
             let terms = args[0].damageRolls[d].terms;
@@ -18,7 +18,7 @@ try {
                             <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                             <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                         </tiv>
-                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.newDefaultDamageType.charAt(0).toUpperCase() ?? args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.newDefaultDamageType.toLowerCase().slice(1) ?? args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.damageRolls[0].options.type.charAt(0).toUpperCase() + args[0].workflow.damageRolls[0].options.type.toLowerCase().slice(1)})</p>
                     </label>
                     `;
                 }
@@ -37,7 +37,7 @@ try {
                             <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                             <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                         </tiv>
-                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.newDefaultDamageType.charAt(0).toUpperCase() ?? args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.newDefaultDamageType.toLowerCase().slice(1) ?? args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                        <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.damageRolls[0].options.type.charAt(0).toUpperCase() + args[0].workflow.damageRolls[0].options.type.toLowerCase().slice(1)})</p>
                     </label>
                     `;
                 }

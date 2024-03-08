@@ -34,6 +34,7 @@ try {
                 r.terms.forEach(t => { 
                     t.formula.replace(t.options.flavor, type);
                     t.options.flavor = type;
+                    t.flavor = type;
                 });
             });
             newBonusDamageRolls.forEach(async r => {
@@ -41,6 +42,7 @@ try {
                     if (t.options.flavor && t.options.flavor.toLowerCase() != args[0].item.system.damage.parts[0][1].toLowerCase()) return;
                     t.formula.replace(t.options.flavor, type);
                     t.options.flavor = type;
+                    t.flavor = type;
                 });
             });
             if (newDamageRolls) await workflowNext.setDamageRolls(newDamageRolls);

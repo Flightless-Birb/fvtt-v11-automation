@@ -1,0 +1,3 @@
+try {
+    if (args[0].tag == "DamageBonus" && args[0].item.system.actionType == "mwak" && !(5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.includes("rch") ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return { damageRoll: "1d8[radiant]", type: "radiant", flavor: "Improved Divine Smite" }
+} catch (err) {console.error("Improved Divine Smite Macro - ", err)}

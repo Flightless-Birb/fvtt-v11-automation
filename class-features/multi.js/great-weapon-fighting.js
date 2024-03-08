@@ -5,7 +5,7 @@ try {
 	newDamageRolls.terms.forEach(t => { 
 		if (!t.faces) return;
 		t.results.forEach(d => {
-			if (d.result >= 2) return;
+			if (d.result >= 3) return;
 			let newRoll = new Roll(`1d${t.faces}`).evaluate({ async: false });
 			Object.assign(d, { rerolled: true, active: false });
 			t.results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
@@ -15,7 +15,7 @@ try {
 	newBonusDamageRolls.terms.forEach(t => { 
 		if (!t.faces) return;
 		t.results.forEach(d => {
-			if (d.result >= 2) return;
+			if (d.result >= 3) return;
 			let newRoll = new Roll(`1d${t.faces}`).evaluate({ async: false });
 			Object.assign(d, { rerolled: true, active: false });
 			t.results.push({ result: parseInt(newRoll.result), active: true, hidden: true });

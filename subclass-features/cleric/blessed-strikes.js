@@ -1,7 +1,7 @@
 try {
     if (args[0].workflow.blessedStrikes == "attack") {
         let diceMult = args[0].isCritical ? 2 : 1;
-        return { damageRoll: `${diceMult}d8[radiant]`, type: "radiant", flavor: "Blessed Strikes" }
+        return { damageRoll: `${diceMult}d8[radiant]`, damageType: "radiant", flavor: "Blessed Strikes" }
     }
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && (["mwak", "rwak"].includes(args[0].item.system.actionType) || (args[0].item.type == "spell" && args[0].item.system.level == 0 && args[0].item.system.school && ["msak", "rsak"].includes(args[0].item.system.actionType))) && (!game.combat || args[0].actor.effects.find(e => e.name == "Used Blessed Strikes" && !e.disabled))) {
         let useFeat = true;
@@ -40,7 +40,7 @@ try {
         }
         args[0].workflow.blessedStrikes = "attack";
         let diceMult = args[0].isCritical ? 2 : 1;
-        return { damageRoll: `${diceMult}d8[radiant]`, type: "radiant", flavor: "Blessed Strikes" }
+        return { damageRoll: `${diceMult}d8[radiant]`, damageType: "radiant", flavor: "Blessed Strikes" }
     } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && args[0].item.system.level == 0 && args[0].item.system.school && ["save", "other"].includes(args[0].item.system.actionType) && (!game.combat || args[0].actor.effects.find(e => e.name == "Used Blessed Strikes" && !e.disabled))) {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 

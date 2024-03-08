@@ -123,7 +123,7 @@ try {
 			name: "Wild Shape",
 			origin: lastArg.item.uuid
 		}
-		if (druidLevels < 20) effectData.changes.push({ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.utRCmQJmdbWw5B2i, preTargeting", priority: 20 }); 
+		if (druidLevels < 20) effectData.changes.push({ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.JkyTgU1gtkh1NuVJ, preTargeting", priority: 20 }); 
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] }); 
 	} else if (args[0] == "on" && lastArg.efData.flags?.["midi-qol"]?.wildShape) {
 		const gamePack = game.packs.get("dnd-5e-core-compendium.monsters");
@@ -132,6 +132,7 @@ try {
 		let matchActor = (await gamePack.getDocument(match._id))?.toObject();
 		const wildShapeActor = duplicate(matchActor);
 		if (!wildShapeActor) return;
+		const primalStrike = actor.items.find(i => i.name.includes("Primal Strike"));
 		wildShapeActor.system.abilities.cha = actor.system.abilities.cha;
 		wildShapeActor.system.abilities.int = actor.system.abilities.int;
 		wildShapeActor.system.abilities.wis = actor.system.abilities.wis;
@@ -147,7 +148,10 @@ try {
 			'size': wildShapeActor.system.traits.size
 		};
 		let wildShapeItems = {};
-		[...wildShapeActor.items].forEach(i => { wildShapeItems[i.name] = i });
+		[...wildShapeActor.items].forEach(i => { 
+			if (primalStrike && i.type == "weapon") i.system.properties.mgc = true;
+			wildShapeItems[i.name] = i; 
+		});
 		let wildShapeToken = {
 			'name': wildShapeActor.name + ' (' + actor.name + ')',
 			'texture': wildShapeActor.prototypeToken.texture,
@@ -193,5 +197,8 @@ try {
 		await warpgate.mutate(token.document, updates, {}, { name: "Wild Shape" });
 	} else if (args[0] == "off") {
 		await warpgate.revert(token.document, "Wild Shape");
-	} 
+	} else if (lastArg.macroPass == "preTargeting" && lastArg.item.type == "spell" && lastArg.item.system.school) {
+		ui.notifications.warn("Unable to cast Spells while in Wild Shape");
+        return false;
+	}
 } catch (err) {console.error("Wild Shape Macro - ", err)}

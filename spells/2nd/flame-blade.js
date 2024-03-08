@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
-        const damageType = args[0].workflow.defaultDamageType ? args[0].workflow.defaultDamageType.toLowerCase() : "fire";
+        const damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType ?? "fire";
         const itemData = {
             name: "Flame Blade",
             img: "icons/magic/fire/projectile-bolt-zigzag-orange.webp",

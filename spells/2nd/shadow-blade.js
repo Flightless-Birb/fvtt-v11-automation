@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
-        const damageType = args[0].workflow.defaultDamageType ? args[0].workflow.defaultDamageType.toLowerCase() : "psychic";
+        const damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType ?? "psychic";
         const itemData = {
             name: "Shadow Blade",
             img: "icons/skills/melee/strike-dagger-arcane-pink.webp",

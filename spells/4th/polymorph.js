@@ -128,7 +128,7 @@ try {
 			if (!polymorphChoice) return;
 			const effectData = {
 				disabled: false,
-				changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.nrLODrNmniqkBv9c", priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.utRCmQJmdbWw5B2i, preTargeting", priority: 20 }],
+				changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.nrLODrNmniqkBv9c", priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.nrLODrNmniqkBv9c, preTargeting", priority: 20 }, { key: "flags.midi-qol.disableFeats", mode: 0, value: "1", priority: 20 }],
 				flags: { "midi-qol": { polymorph: polymorphChoice } },
 				duration: { seconds: 60 },
 				icon: "icons/magic/control/energy-stream-link-large-teal.webp",
@@ -145,8 +145,12 @@ try {
 		const polymorphActor = duplicate(matchActor);
 		if (!polymorphActor) return;
 		let polymorphItems = {};
-		[...actor.items].forEach(i => { if (i.type != "spell") polymorphItems[i.name] = warpgate.CONST.DELETE });
-		[...polymorphActor.items].forEach(i => { polymorphItems[i.name] = i });
+		[...actor.items].forEach(i => { if (!["class", "subclass", "race", "background", "feat", "spell"].includes(i.type)) polymorphItems[i.name] = warpgate.CONST.DELETE });
+		[...polymorphActor.items].forEach(i => { 
+			i.flags.polymorph = true;
+			polymorphItems[i.name] = i; 
+		});
+		let polymorphEffects = {};
 		let polymorphToken = {
 			'name': polymorphActor.name + ' (' + actor.name + ')',
 			'texture': polymorphActor.prototypeToken.texture,
@@ -187,10 +191,23 @@ try {
 			actor: polymorphActor,
 			embedded: {
 				Item: polymorphItems,
+				ActiveEffect: polymorphEffects,
 			},
 		}
+		console.error(updates);
 		await warpgate.mutate(token.document, updates, {}, { name: "Polymorph" });
+		[...actor.effects].forEach(async e => { 
+			let parent = await fromUuid(e.origin);
+			if (["class", "subclass", "race", "background", "feat", "spell"].includes(parent.type) && (e.transfer || e.flags.dae.transfer) && !e.disabled) e.update({ disabled: true });
+		});
 	} else if (args[0] == "off") {
 		await warpgate.revert(token.document, "Polymorph");
+		if (!actor.flags?.["midi-qol"]?.disableFeats) [...actor.effects].forEach(async e => { 
+			let parent = await fromUuid(e.origin);
+			if (["class", "subclass", "race", "background", "feat", "spell"].includes(parent.type) && (e.transfer || e.flags.dae.transfer) && e.disabled) e.update({ disabled: false });
+		});
+	} else if (lastArg.macroPass == "preTargeting" && !lastArg.item.flags?.polymorph) {
+		ui.notifications.warn("Unable to cast Spells or use Features while Polymorphed");
+        return false;
 	}
 } catch (err) {console.error("Polymorph Macro - ", err)}
