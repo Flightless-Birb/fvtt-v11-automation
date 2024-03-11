@@ -10,7 +10,7 @@ try {
             { name: "Earth Elemental" },
             { name: "Fire Elemental" },
             { name: "Water Elemental" },
-		];const elementalOptions = elementals.reduce((acc, target) => acc += `<option value="${target.name}">${target.name} (CR ${target.cr >= 1 || target.cr == 0 ? target.cr : `1/${1/target.cr}`})</option>`, "");
+		];const elementalOptions = elementals.reduce((acc, target) => acc += `<option value="${target.name}">${target.name} (CR 5)</option>`, "");
 		let dialog = new Promise((resolve) => {
 			new Dialog({
 			title: "Elemental Wild Shape",
@@ -77,7 +77,7 @@ try {
 		};
 		let wildShapeItems = {};
 		[...wildShapeActor.items].forEach(i => { 
-			if (primalStrike && i.type == "weapon") i.system.properties.mgc = true;
+			if (primalStrike && i.type == "weapon") i.system.properties = new Set([...i.system.properties].concat(["mgc"]));
 			wildShapeItems[i.name] = i; 
 		});
 		let wildShapeToken = {

@@ -2,7 +2,7 @@ try {
     if (args[0].workflow.eldritchSmite) {
         let dice = args[0].workflow.eldritchSmite + 1;
         let diceMult = args[0].isCritical ? 2: 1;
-        return { damageRoll: `${dice * diceMult}d8[force]`, type: "force", flavor: "Eldritch Smite" }
+        return { damageRoll: `${dice * diceMult}d8[force]`, damageType: "force", flavor: "Eldritch Smite" }
     }
     if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.name == "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
@@ -58,5 +58,5 @@ try {
     let dice = args[0].actor.system.spells.pact.level + 1;
     let diceMult = args[0].isCritical ? 2 : 1;
     args[0].workflow.eldritchSmite = +args[0].actor.system.spells.pact.level;
-    return { damageRoll: `${dice * diceMult}d8[force]`, type: "force", flavor: "Eldritch Smite" }
+    return { damageRoll: `${dice * diceMult}d8[force]`, damageType: "force", flavor: "Eldritch Smite" }
 } catch (err) {console.error("Eldritch Smite Macro - ", err)}

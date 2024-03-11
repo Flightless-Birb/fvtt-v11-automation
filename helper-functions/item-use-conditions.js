@@ -20,4 +20,13 @@
 !(workflow.targets.size>workflow.item.system.target.value?ui.notifications.warn(`Must have ${workflow.item.system.target.value} or fewer targets`):false)
 
 // must be raging
-!(workflow.actor.effects.find(e=>e.name.includes("Rage"))?ui.notifications.warn("Must be raging"):false)
+!(!workflow.actor.effects.find(e=>e.name.includes("Rage"))?ui.notifications.warn("Must be Raging"):false)
+
+// must be wild shaped
+!(!workflow.actor.effects.find(e=>e.name.includes("Wild Shape"))?ui.notifications.warn("Must be in Wild Shape"):false)
+
+// must be attuned
+!(item.attunement==1?ui.notifications.warn("Must be Attuned"):false)
+
+// must be activated
+!(!workflow.actor.effects.find(e=>e.name.includes("Sun Blade Activated")&&!e.disabled&&!e.isSuppressed)?ui.notifications.warn("Must be Activated"):false)

@@ -62,7 +62,7 @@ try {
         }
     });
     let abortHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
-        if (workflowNext.uuid === args[0].uuid) {
+        if (workflowNext.uuid == args[0].uuid) {
             Hooks.off("midi-qol.preDamageRollStarted", rollHook);
             Hooks.off("createActiveEffect", createHook);
             Hooks.off("midi-qol.preItemRoll", abortHook);

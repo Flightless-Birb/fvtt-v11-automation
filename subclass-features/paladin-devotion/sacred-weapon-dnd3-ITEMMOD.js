@@ -50,7 +50,7 @@ try {
         const effectData = {
             name: lastArg.item.name,
             icon: lastArg.item.img,
-            changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.NtU35r1G39UGKK12 ${weaponId}`, priority: 20 }],
+            changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.NtU35r1G39UGKK12 ${weaponId}`, priority: 20 }, { key: "ATL.light.dim", mode: 4, value: "40", priority: 20 }, { key: "ATL.light.bright", mode: 4, value: "20", priority: 20 }, { key: "ATL.light.color", mode: 5, value: "#ffffff", priority: 20 }, { key: "ATL.light.alpha", mode: 5, value: "0.1", priority: 20 }, { key: "ATL.light.animation", mode: 5, value: '{"type": "pulse", "speed": 3,"intensity": 1}', priority: 20 } ],
             duration: { seconds: 60 },
             origin: lastArg.uuid,
             disabled: false,

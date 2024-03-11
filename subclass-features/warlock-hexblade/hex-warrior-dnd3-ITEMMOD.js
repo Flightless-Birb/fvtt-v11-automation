@@ -50,7 +50,6 @@ try {
             name: lastArg.item.name,
             icon: lastArg.item.img,
             changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.NtU35r1G39UGKK12 ${weaponId}`, priority: 20 }],
-            duration: { seconds: 60 },
             origin: lastArg.uuid,
             disabled: false,
             isSuppressed: false

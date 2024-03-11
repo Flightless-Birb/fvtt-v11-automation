@@ -1,7 +1,7 @@
 try {
     if (args[0].workflow.celestialRevelation == "attack") {
         let damageType = args[0].actor.flags["midi-qol"]?.celestialRevelation ? args[0].actor.flags["midi-qol"]?.celestialRevelation : "radiant";
-        return { damageRoll: `${args[0].actor.system.attributes.prof}`, type: damageType, flavor: "Celestial Revelation" }
+        return { damageRoll: `${args[0].actor.system.attributes.prof}`, damageType: damageType, flavor: "Celestial Revelation" }
     }
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
         let useFeat = true;
@@ -40,7 +40,7 @@ try {
         }
         let damageType = args[0].actor.flags["midi-qol"]?.celestialRevelation ? args[0].actor.flags["midi-qol"]?.celestialRevelation : "radiant";
         args[0].workflow.celestialRevelation = "attack";
-        return { damageRoll: `${args[0].actor.system.attributes.prof}`, type: damageType, flavor: "Celestial Revelation" }
+        return { damageRoll: `${args[0].actor.system.attributes.prof}`, damageType: damageType, flavor: "Celestial Revelation" }
     } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)  && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Celestial Revelation" && !e.disabled))) {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 

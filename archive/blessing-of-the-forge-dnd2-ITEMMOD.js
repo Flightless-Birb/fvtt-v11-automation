@@ -36,7 +36,7 @@ try {
                                 const effectData = {
                                     name: "Blessing of the Forge",
                                     icon: "icons/tools/smithing/furnace-fire-metal-orange.webp",
-                                    changes: [{ key: "macro.execute", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.fjMpD92HT5hOjThS ${$("input[type='radio'][name='weaponOrArmor']:checked").val()}`, priority: 20 }],
+                                    changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.fjMpD92HT5hOjThS ${$("input[type='radio'][name='weaponOrArmor']:checked").val()}`, priority: 20 }],
                                     origin: args[0].uuid,
                                     disabled: false,
                                     isSuppressed: false,

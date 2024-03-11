@@ -14,7 +14,7 @@ try {
     } else if (args[0].macroPass == "postActiveEffects" && args[0].item.system.actionType == "mwak" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll) {
         const effectData = { 
             changes: [{ key: "ATL.elevation", mode: 5, value: -9999, priority: 99 }, { key: "ATL.hidden", mode: 5, value: true, priority: 99 }], 
-            disabled: args[0].targets[0].actor.system.attributes.hp.value > 50 ? true : false, 
+            disabled: args[0].damageList[0].newHP > 50 ? true : false, 
             icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-teal-purple.webp", 
             name: "Banishing Smite", 
             duration: { seconds: 60 } 
