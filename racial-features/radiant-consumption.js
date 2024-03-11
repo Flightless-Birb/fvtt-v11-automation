@@ -8,7 +8,7 @@ try {
 			name: "Radiant Consumption",
 			img: "icons/magic/holy/projectiles-blades-salvo-yellow.webp",
 			type: "feat",
-			flags: { "midi-qol": { onUseMacroName: "[preambleComplete]TargetIgnoreSelf", onUseMacroParts: { items: [{ macroName: "TargetIgnoreSelf", options: "preambleComplete" }] } }, midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
+			flags: { "midi-qol": { onUseMacroName: "[preambleComplete]Compendium.dnd-5e-core-compendium.macros.6icKwEQwT0uNrc9k", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.6icKwEQwT0uNrc9k", options: "prePreambleComplete" }] } }, midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
 			system: {
 				activation: { type: "special" },
 				target: { type: "creature", value: 10, units: "ft" },
@@ -18,6 +18,6 @@ try {
 			}
 		}
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
-    await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false });
+    await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false });
     }
 } catch (err) {console.error("Radiant Consumption Macro - ", err)}

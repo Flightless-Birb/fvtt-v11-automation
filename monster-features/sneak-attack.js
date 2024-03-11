@@ -10,7 +10,7 @@ try {
             disabled: false,
             duration: { turns: 1 },
             label: "Used Sneak Attack",
-            icon: "icons/skills/melee/strike-dagger-arcane-pink.webp"
+            icon: "icons/skills/melee/blade-tip-chipped-blood-red.webp"
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }

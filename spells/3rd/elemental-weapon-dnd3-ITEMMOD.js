@@ -75,7 +75,7 @@ try {
             const effectData = {
                 name: lastArg.item.name,
                 icon: lastArg.item.img,
-                changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.spells.F2KDAxXEDWGAR2xP ${weaponData.id} ${bonus} ${weaponData.type}`, priority: 20 }],
+                changes: [{ key: "macro.execute.GM", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.Wn4atlU9Y5SfeF9V ${weaponData.id} ${bonus} ${weaponData.type}`, priority: 20 }],
                 duration: { seconds: 3600 },
                 origin: lastArg.uuid,
                 disabled: false,

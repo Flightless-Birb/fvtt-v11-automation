@@ -2,8 +2,8 @@ try {
     const lastArg = args[args.length - 1];
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-    if (args[0] == "on") {
-        const equipped = actor.items.filter(i => i.type == "weapon" && !i.system.properties.two && (actor.system.traits.weaponProf.value.has(i.system.type.baseItem) || (actor.system.traits.weaponProf.value.has("sim") && i.system.type.value.toLowerCase().includes("simple")) || (actor.system.traits.weaponProf.value.has("mar") && i.system.type.value.toLowerCase().includes("martial"))));
+    if (lastArg.macroPass == "postActiveEffects") {
+        const equipped = actor.items.filter(i => i.type == "weapon" && !i.system.properties.two && (actor.type == "npc" || (actor.system.traits.weaponProf.value.has(i.system.type.baseItem) || (actor.system.traits.weaponProf.value.has("sim") && i.system.type.value.toLowerCase().includes("simple")) || (actor.system.traits.weaponProf.value.has("mar") && i.system.type.value.toLowerCase().includes("martial")))));
         if (!equipped.length) {
             ui.notifications.warn("No Valid Weapons Equipped");
             return;
@@ -26,7 +26,7 @@ try {
         `;
         let dialog = equipped.length == 1 ? equipped[0].id : new Promise((resolve) => {
             new Dialog({
-                title: "Hex Warrior: Choose a weapon",
+                title: "Hex Warrior: Choose a Weapon",
                 content,
                 buttons: {
 					Confirm: {

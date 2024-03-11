@@ -1,8 +1,17 @@
 try {
+    const sizes = {
+        "tiny": 1,
+        "sm": 2,
+        "med": 3,
+        "lg": 4,
+        "huge": 5,
+        "grg": 6
+    }
     if (args[0].workflow.furyOfTheSmall == "attack") {
         return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Fury of the Small" }
     }
     if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
+        if (sizes[args[0].actor.system.traits.size] >= sizes[args[0].targets[0].actor.system.traits.size]) return;
         const usesItem = args[0].actor.items.find(i => i.name == "Fury of the Small" && i.system.uses.value);
         if (!usesItem) return;
         let dialog = new Promise((resolve) => {
@@ -46,7 +55,7 @@ try {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 
             let targetToken = canvas.tokens.get(target.tokenId);
-            if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor)) return;
+            if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor) || sizes[args[0].actor.system.traits.size] >= sizes(targetToken.actor.system.traits.size)) return;
             targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
         });
         if (targetContent == "") return;
