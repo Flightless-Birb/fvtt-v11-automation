@@ -1,40 +1,66 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || !args[0].targets.find(t => t?.actor.effects.find(e => e.origin == args[0].item.uuid && !e.changes.find(e => e.key == "flags.dae.deleteUuid")))) return;
-    let dialog = new Promise((resolve) => {
-        new Dialog({
-        title: "Usage Configuration: Blindness/Deafness",
-        content: `<p>Choose a condition to apply:</p>`,
-        buttons: {
-            confirm: {
-                label: "Blinded",
-                callback: () => resolve("Blinded")
-            },
-            cancel: {
-                label: "Deafened",
-                callback: () => {resolve("Deafened")}
-            }
-        },
-        default: "cancel",
-        close: () => {resolve(false)}
-        }).render(true);
-    });
-    let condition = await dialog;
-    if (!condition) return;
-    const rollId = args[0].item._id + '-' + args[0].itemCardId;
-    args[0].targets.forEach(async t => {
-        const effect = t?.actor.effects.find(e => e.origin == args[0].item.uuid && !e.changes.find(e => e.key == "flags.dae.deleteUuid"));
-        if (!effect || t?.actor?.system?.traits?.ci?.value?.has(condition.toLowerCase()) || t?.actor?.system?.traits?.ci?.custom?.toLowerCase()?.includes(condition.toLowerCase())) return;
+    if (args[0].macroPass != "postActiveEffects") return;
+	const targets = args[0].failedSaves;
+	if (!targets.length) return;
+    targets.forEach(async t => {
+		if (!t.actor || !MidiQOL.typeOrRace(t.actor)) return;
+		const conditionOptions = ["Blinded", "Deafened"].reduce((acc, target) => acc += `<option value="${target}">${target}</option>`, "");
+		let dialog = new Promise((resolve) => {
+			new Dialog({
+			title: "Blindness/Deafness",
+			content: `
+			<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
+				<p>Choose a Condition to apply.</p>
+			</div>
+			<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
+				<p>Targeting: </p>
+				<img id="${t.id}" src="${t.texture.src ?? t.document.texture.src}" style="border: 0px; width 50px; height: 50px;">
+			</div>
+			<form>
+				<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
+					<label for="condition">Condition:</label><select id="condition">${conditionOptions}</select>
+				</div>
+			</form>
+			<script>
+				$("img").mouseover(function(e) {
+					let targetToken = canvas.tokens.get(e.target.id);
+					targetToken.hover = true;
+					targetToken.refresh();
+				});
+				$("img").mouseout(function(e) {
+					let targetToken = canvas.tokens.get(e.target.id);
+					targetToken.hover = false;
+					targetToken.refresh();
+				});
+			</script>
+			`,
+			buttons: {
+				confirm: {
+					icon: '<i class="fas fa-check"></i>',
+					label: "Confirm",
+					callback: () => resolve($("#condition")[0].value)
+				},
+				cancel: {
+					icon: '<i class="fas fa-times"></i>',
+					label: "Cancel",
+					callback: () => {resolve(false)}
+				}
+			},
+			default: "cancel",
+			close: () => {resolve(false)}
+			}).render(true);
+		});
+		let condition = await dialog;
+		if (!condition) return;
+        if (t?.actor?.system?.traits?.ci?.value?.has(condition.toLowerCase()) || t?.actor?.system?.traits?.ci?.custom?.toLowerCase()?.includes(condition.toLowerCase())) return;
         const effectData = {
-			changes: [{ key: "StatusEffect", mode: 0, value: `Convenient Effect: ${condition}`, priority: 20 }],
+			changes: [{ key: "macro.CE", mode: 0, value: condition, priority: 20 }, { key: "flags.midi-qol.OverTime", mode: 0, value: `turn=end,label=Blindness/Deafness (${condition}),saveAbility=con,saveDC=${args[0].actor.system.attributes.spelldc},saveMagic=true,killAnim=true`, priority: 20 }],
 			disabled: false,
 			origin: args[0].item.uuid,
-			name: condition,
+			name: args[0].item.name,
             icon: args[0].item.img,
 			duration: { seconds: 60 },
-			flags: { "midi-qol": { rollId: rollId } } 
 		}
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: t.actor.uuid, effects: [effectData] });
-        const conditionEffect = t.actor.effects.find(e => e.flags["midi-qol"]?.rollId == rollId);
-        if (conditionEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: t.actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: conditionEffect.uuid, priority: 20 }]) }] });
     });
 } catch (err) {console.error("Blindness/Deafness Macro - ", err)}

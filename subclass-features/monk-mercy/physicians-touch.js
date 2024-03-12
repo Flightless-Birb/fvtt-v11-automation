@@ -1,5 +1,5 @@
 try {
-	if (args[0].macroPass != "postActiveEffects" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].workflow.handOfHarm) return;
+	if (args[0].macroPass != "postActiveEffects" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRolls || !args[0].workflow.handOfHarm) return;
     const effectData = {
         changes: [{ key: "macro.CE", mode: 0, value: "Convenient Effect: Poisoned", priority: 20, }],
         disabled: false,

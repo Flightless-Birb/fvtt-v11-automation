@@ -39,13 +39,13 @@ try {
         if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range || checkIncapacitated) return console.warn("Damage On Attacked conditions not met");
         if (isHit) {
             let damageHook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
-                if (workflowNext.uuid === args[0].uuid && (workflowNext.hitTargets.size || MidiQOL.configSettings().autoRollDamage != "always")) {
+                if (workflowNext.uuid == args[0].uuid && workflowNext.damageRolls && (workflowNext.hitTargets.size || MidiQOL.configSettings().autoRollDamage != "always")) {
                     await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
                     Hooks.off("midi-qol.RollComplete", damageHook);
                 }
             });
             let abortHook = Hooks.on("midi-qol.preItemRoll", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
+                if (workflowComplete.uuid == args[0].uuid) {
                     Hooks.off("midi-qol.RollComplete", damageHook);
                     Hooks.off("midi-qol.preItemRoll", abortHook);
                 }

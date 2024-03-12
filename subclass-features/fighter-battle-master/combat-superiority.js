@@ -262,7 +262,7 @@ try {
 		if (["sweepingAttack"].includes(maneuver)) return;
         let diceMult = args[0].isCritical ? 2 : 1;
 		return { damageRoll: `${diceMult}${die}`, flavor: "Combat Superiority" }
-	} else if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
+	} else if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRolls && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
 		const itemData = {
 			type: "feat",
 			flags: { autoanimations: { isEnabled: false }, "midi-qol": {} },

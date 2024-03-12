@@ -3,7 +3,7 @@ try {
         let damage = args[0].actor.system.attributes.prof;
         let damageType = args[0].actor.flags["midi-qol"]?.genieKind;
         if (!damage || !damageType) return;
-        return { damageRoll: `${damage}[${damageType}]`, type: damageType, flavor: "Genie's Vessel" }
+        return { damageRoll: `${damage}[${damageType}]`, damageType: damageType, flavor: "Genie's Vessel" }
     }
     if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always")  || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Genie's Vessel" && disabled == false))) return;
 	let useFeat = true;
@@ -44,5 +44,5 @@ try {
     let damageType = args[0].actor.flags["midi-qol"]?.genieKind;
     if (!damage || !damageType) return;
 	args[0].workflow.geniesVessel = true;
-    return { damageRoll: `${damage}[${damageType}]`, type: damageType, flavor: "Genie's Vessel" }
+    return { damageRoll: `${damage}[${damageType}]`, damageType: damageType, flavor: "Genie's Vessel" }
 } catch (err) {console.error("Genie's Vessel Macro - ", err)}

@@ -9,7 +9,7 @@ try {
         name: "Twilight Sanctuary Aura",
         icon: "icons/magic/defensive/barrier-shield-dome-pink.webp",
         duration: { seconds: 60 },
-        flags: { dae: { stackable: "noneName" }, ActiveAuras: { aura: "Allies", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: false, isAura: true, nameOverride: "Twilight Sanctuary", onlyOnce: false, radius: 30, wallsBlock: "true", customCheck: "MidiQOL.typeOrRace(actor.uuid)" } }
+        flags: { dae: { stackable: "noneName" }, ActiveAuras: { aura: "Allies", displayTemp: false, height: true, hidden: true, hostile: false, ignoreSelf: false, isAura: true, nameOverride: "Twilight Sanctuary", onlyOnce: false, radius: 30, wallsBlock: "true", customCheck: "MidiQOL.typeOrRace(actor.uuid)" } }
     }
     if (level > 16) effectData.changes.push({ key: "macro.CE", mode: 0, value: "Cover (Half)", priority: 20 });
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });

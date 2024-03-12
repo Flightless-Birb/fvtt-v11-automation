@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag === "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].item.name == "Eldritch Blast" && !args[0].actor.effects.find(e => e.name == "Used Lance of Lethargy") && (!game.combat || game.combat?.current.tokenId == args[0].tokenId)) {
+    if (args[0].tag === "OnUse" && args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRolls && args[0].item.name.includes("Eldritch Blast") && !args[0].actor.effects.find(e => e.name == "Used Lance of Lethargy" && !e.disabled) && (!game.combat || game.combat?.current.tokenId == args[0].tokenId)) {
         new Dialog({
             title: "Lance of Lethargy",
             content: "<p>Use Lance of Lethargy?</p>",

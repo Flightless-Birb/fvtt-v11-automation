@@ -1,6 +1,6 @@
 try {
 	if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
-	const weapons = args[0].actor.items.filter((i) => i.type == "weapon" && i.system.equipped && ["glaive", "halberd", "pike", "quarterstaff", "spear"].includes(i.system.baseItem));
+	const weapons = args[0].actor.items.filter((i) => i.type == "weapon" && i.system.equipped && ["glaive", "halberd", "pike", "quarterstaff", "spear"].includes(i.system.type.baseItem));
     let weapon_content = "";
     weapons.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
     let content = `

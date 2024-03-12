@@ -2,7 +2,7 @@ try {
     if (args[0].tag !== "OnUse" || args[0].macroPass !== "postActiveEffects") return;
 	const level = args[0].actor.type == "character" ? args[0].actor.system.details.level : args[0].actor.system.details.cr;
 	const cantripDice = Math.floor((level + 1) / 6) + 1;
-	const weapons = args[0].actor.items.filter((i) => i.type == "weapon" && i.system.equipped && i.system.actionType == "mwak" && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
+	const weapons = args[0].actor.items.filter((i) => i.type == "weapon" && i.system.equipped && i.system.actionType == "mwak" && ["simple","martial"].find(t => i.system.type.value.toLowerCase().includes(t)));
 	let weapon_content = "";
 	weapons.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
 	let content = `
