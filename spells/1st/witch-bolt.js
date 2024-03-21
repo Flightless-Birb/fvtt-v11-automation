@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
-        const damageType = args[0].workflow.defaultDamageType ? args[0].workflow.defaultDamageType.toLowerCase() : "lightning";
+        const damageType = args[0].workflow.newDefaultDamageType ?? args[0].workflow.defaultDamageType ?? "lightning";
         const itemData = {
             name: "Reactivate Witch Bolt",
             img: "icons/magic/lightning/bolt-blue.webp",

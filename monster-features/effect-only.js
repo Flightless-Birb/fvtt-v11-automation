@@ -48,13 +48,13 @@ effects.find(e=>e.name=="Frightened"&&MidiQOL.canSee(canvas.tokens.get(tokenId),
 workflow?.targets?.size&&["aberration","celestial","elemental","fey","fiend"].find(t=>MidiQOL.typeOrRace(targetActorUuid)?.toLowerCase().includes(t))
 
 //-----phalanx formation > flags.midi-qol.advantage.attack.all / flags.midi-qol.advantage.ability.save.dex
-workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(tokenId)?.document?.disposition&&t.id!=tokenId&&t.actor.items.find(i=>i.system?.armor?.type=="shield"&&i.system?.equipped)&&MidiQOL.computeDistance(t,canvas.tokens.get(tokenId),false)<10)
-workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(targetId)?.document?.disposition&&t.id!=targetId&&t.actor.items.find(i=>i.system?.armor?.type=="shield"&&i.system?.equipped)&&MidiQOL.computeDistance(t,canvas.tokens.get(targetId),false)<10)
+workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(tokenId)?.document?.disposition&&t.id!=tokenId&&t.actor.items.find(i=>i.system?.type?.value=="shield"&&i.system?.equipped)&&MidiQOL.computeDistance(t,canvas.tokens.get(tokenId),false)<10)
+workflow?.targets?.size&&canvas.tokens.placeables.find(t=>t.actor&&MidiQOL.typeOrRace(t.actor)&&t?.document?.disposition==canvas.tokens.get(targetId)?.document?.disposition&&t.id!=targetId&&t.actor.items.find(i=>i.system?.type?.value=="shield"&&i.system?.equipped)&&MidiQOL.computeDistance(t,canvas.tokens.get(targetId),false)<10)
 
 //------underwater flags.midi-qol.disadvantage.attack.mwak/rwak flags.midi-qol.fail.attack.mwak/rwak
-workflow?.targets?.size&&!["dagger","javelin","shortsword","spear","trident"].includes(item?.baseItem)&&!
-workflow?.targets?.size&&!["handcrossbow","lightcrossbow","heavycrossbow","net","dart"].includes(item?.baseItem)&&!workflow.actor.traits
-workflow?.targets?.size&&MidiQOL.checkRange(workflow.item,workflow.token,[...workflow.targets],false).range>MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)
+workflow?.targets?.size&&!["dagger","javelin","shortsword","spear","trident"].includes(item?.system?.type?.baseItem)&&!workflow.actor.attributes.movement.swim&&!workflow.actor.flags?.["midi-qol"]?.ignoreUnderwater
+workflow?.targets?.size&&!["handcrossbow","lightcrossbow","heavycrossbow","net","dart"].includes(item?.system?.type?.baseItem)&&!workflow.actor.attributes.movement.swim&&!workflow.actor.flags?.["midi-qol"]?.ignoreUnderwater
+workflow?.targets?.size&&MidiQOL.checkRange(workflow.item,workflow.token,[...workflow.targets],false).range>MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)&&!workflow.actor.flags?.["midi-qol"]?.ignoreUnderwater
 
 //-----resistance to condition/type of item > flags.midi-qol.advantage.ability.save.all
 //-charmed

@@ -38,17 +38,19 @@ try {
             new Dialog({
                 title: `Hex: Usage Configuration`,
                 content: `
-                    <p>Choose a type of ability check to give the target disadvantage on:</p>
-                    <div class="form-group">
-                        <select name="abilities"}>
-                            <option value="str">Strength</option>
-                            <option value="dex">Dexterity</option>
-                            <option value="con">Consitution</option>
-                            <option value="int">Intelligence</option>
-                            <option value="wis">Wisdom</option>
-                            <option value="cha">Charisma</option>
-                        </select>
-                    </div>
+                    <p>Choose an ability check to give the target disadvantage on:</p>
+                    <form style="padding-bottom: 10px">
+                        <div class="form-group">
+                            <select name="abilities"}>
+                                <option value="str">Strength</option>
+                                <option value="dex">Dexterity</option>
+                                <option value="con">Consitution</option>
+                                <option value="int">Intelligence</option>
+                                <option value="wis">Wisdom</option>
+                                <option value="cha">Charisma</option>
+                            </select>
+                        </div>
+                    </form> 
                 `,
                 buttons: {
                     Confirm: {

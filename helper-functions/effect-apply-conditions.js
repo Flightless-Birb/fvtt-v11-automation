@@ -22,7 +22,7 @@ target.failedSave&&!target.effects.find(e=>e.name=="Prone")&&!(target.traits.ci.
 
 !(target.traits.ci.has("invisible")||target.traits.ci.custom.toLowerCase().includes("invisible"))
 
-
+!(target.traits.ci.has("blinded")||target.traits.ci.custom.toLowerCase().includes("blinded"))
 
 
 

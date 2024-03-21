@@ -2,7 +2,7 @@ try {
     if (args[0].macroPass != "postDamageRollStarted" || args[0].item.system.actionType != "mwak" || !args[0].item.system.properties.includes("hvy") || (5 * Math.floor(MidiQOL.computeDistance(args[0].workflow.token, args[0].targets[0], false) / 5) > (args[0].item.system.properties.includes("rch") ? 10 : 5) + (args[0].actor.flags?.["midi-qol"]?.range?.mwak ?? 0))) return;
 	let newDamageRolls = args[0].workflow.damageRolls;
 	let newBonusDamageRolls = args[0].workflow.bonusDamageRolls;
-	newDamageRolls.forEach(async r => {
+	if (newDamageRolls) newDamageRolls.forEach(async r => {
 		r.terms.forEach(t => { 
 			if (!t.faces) return;
 			t.results.forEach(d => {
@@ -14,7 +14,7 @@ try {
 			});
 		});
 	});
-	newBonusDamageRolls.forEach(async r => {
+	if (newBonusDamageRolls) newBonusDamageRolls.forEach(async r => {
 		r.terms.forEach(t => { 
 			if (!t.faces) return;
 			t.results.forEach(d => {

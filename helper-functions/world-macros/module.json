@@ -1,0 +1,308 @@
+{
+    "id": "dnd-5e-core-compendium",
+    "title": "DnD 5e Core Compendium",
+    "version": "1.0.0",
+    "esmodules": [
+      "scripts/hooks.js"
+    ],
+    "compatibility": {
+      "minimum": "11",
+      "verified": "11"
+    },
+    "relationships": {
+      "systems": [
+        {
+          "id": "dnd5e",
+          "type": "system",
+          "compatibility": {}
+        }
+      ],
+      "requires": [
+        {
+          "id": "dae",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "midi-qol",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "dfreds-convenient-effects",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "ActiveAuras",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "ATL",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "effectmacro",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "foundry-summons",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "levels",
+          "type": "module",
+          "compatibility": {}
+        }
+      ],
+      "recommends": [
+        {
+          "id": "vision-5e",
+          "type": "module",
+          "compatibility": {}
+        },
+        {
+          "id": "times-up",
+          "type": "module",
+          "compatibility": {}
+        }
+      ]
+    },
+    "packs": [
+      {
+        "name": "monsters",
+        "label": "DnD5e Monsters",
+        "path": "packs/monsters",
+        "type": "Actor",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "spells",
+        "label": "DnD5e Spells",
+        "path": "packs/spells",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "items",
+        "label": "DnD5e Items",
+        "path": "packs/items",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "macros",
+        "label": "DnD5e Macros",
+        "path": "packs/macros",
+        "type": "Macro",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "class-features",
+        "label": "DnD5e Class Features",
+        "path": "packs/class-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "classes",
+        "label": "DnD5e Classes",
+        "path": "packs/classes",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "monster-features",
+        "label": "DnD5e Monster Features",
+        "path": "packs/monster-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "racial-features",
+        "label": "DnD5e Racial Features",
+        "path": "packs/racial-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "subclasses",
+        "label": "DnD5e Subclasses",
+        "path": "packs/subclasses",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "subclass-features",
+        "label": "DnD5e Subclass Features",
+        "path": "packs/subclass-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "sidekick-classes",
+        "label": "DnD5e Sidekick Classes",
+        "path": "packs/sidekick-classes",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "sidekick-class-features",
+        "label": "DnD5e Sidekick Class Features",
+        "path": "packs/sidekick-class-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "summons",
+        "label": "DnD5e Summons",
+        "path": "packs/summons",
+        "type": "Actor",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "feats",
+        "label": "DnD5e Feats",
+        "path": "packs/feats",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "backgrounds",
+        "label": "DnD5e Backgrounds",
+        "path": "packs/backgrounds",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "races",
+        "label": "DnD5e Races",
+        "path": "packs/races",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "background-features",
+        "label": "DnD5e Background Features",
+        "path": "packs/background-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "item-spells",
+        "label": "DnD5e Item Spells",
+        "path": "packs/item-spells",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "spell-items",
+        "label": "DnD5e Spell Items",
+        "path": "packs/spell-items",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "item-features",
+        "label": "DnD5e Item Features",
+        "path": "packs/item-features",
+        "type": "Item",
+        "system": "dnd5e",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        }
+      },
+      {
+        "name": "world-macros",
+        "label": "DnD5e World Macros",
+        "path": "packs/world-macros",
+        "type": "Macro",
+        "ownership": {
+          "PLAYER": "OBSERVER",
+          "ASSISTANT": "OWNER"
+        },
+        "system": "dnd5e"
+      }
+    ]
+  }

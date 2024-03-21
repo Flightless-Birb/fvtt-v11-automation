@@ -2,7 +2,7 @@ try {
     if (args[0].workflow.destructiveWrath) {
         let newDamageRolls = args[0].workflow.damageRolls;
         let newBonusDamageRolls = args[0].workflow.bonusDamageRolls;
-        newDamageRolls.forEach(async r => {
+        if (newDamageRolls)newDamageRolls.forEach(async r => {
             r.terms.forEach(t => { 
                 if (!t.faces || !["lightning", "thunder"].includes(t.flavor.toLowerCase())) return;
                 t.results.forEach(d => {
@@ -13,7 +13,7 @@ try {
                 });
             });
         });
-        newBonusDamageRolls.forEach(async r => {
+        if (newBonusDamageRolls) newBonusDamageRolls.forEach(async r => {
             r.terms.forEach(t => { 
                 if (!t.faces || !["lightning", "thunder"].includes(t.flavor.toLowerCase())) return;
                 t.results.forEach(d => {

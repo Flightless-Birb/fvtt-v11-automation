@@ -1,5 +1,5 @@
 try {
-    if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.appliedDamage && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
+    if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.appliedDamage > 0 && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
         let updateHook = Hooks.on("midi-qol.preTargetDamageApplication", async (tokenNext, damageNext) => {
             if (tokenNext.actor.uuid != args[0].actor.uuid || damageNext.workflow.item.uuid != args[0].item.uuid) return;
             if (damageNext.damageItem.oldHP < 1 || damageNext.damageItem.newHP != 0) return;

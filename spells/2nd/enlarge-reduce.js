@@ -1,12 +1,13 @@
 try {
     if (args[0].macroPass != "postActiveEffects") return;
-	args[0].targets.forEach(async t => {
-		if (!t.actor || !MidiQOL.typeOrRace(t.actor)) return;
-		const conditions = [{ key: "Strength", value: "str" }, { key: "Dexterity", value: "dex" }, { key: "Constitution", value: "con" }, { key: "Charisma", value: "cha" }, { key: "Intelligence", value: "int" }, { key: "Wisdom", value: "wis" }];
-		const conditionOptions = conditions.reduce((acc, target) => acc += `<option value="${target.value}">${target.key}</option>`, "");
+    const targets = args[0].targets.find(t => t.actor && t.actor.uuid == args[0].actor.uuid) ? args[0].failedSaves.concat([args[0].targets.find(t => t.actor && t.actor.uuid == args[0].actor.uuid)]) : args[0].failedSaves;
+	if (!targets.length) return;
+    targets.forEach(async t => {
+		if (!t.actor || !MidiQOL.typeOrRace(t.actor) || t.actor.system.traits.ci.custom.toLowerCase().includes("form altering")) return;
+		const conditionOptions = ["Enlarge", "Reduce"].reduce((acc, target) => acc += `<option value="${target}">${target}</option>`, "");
 		let dialog = new Promise((resolve) => {
 			new Dialog({
-			title: "Blindness/Deafness",
+			title: "Enlarge/Reduce",
 			content: `
 			<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
 				<p>Choose a Condition to apply.</p>
@@ -15,7 +16,7 @@ try {
 				<p>Targeting: </p>
 				<img id="${t.id}" src="${t.texture.src ?? t.document.texture.src}" style="border: 0px; width 50px; height: 50px;">
 			</div>
-			<form>
+			<form style="padding-bottom: 10px">
 				<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
 					<label for="condition">Condition:</label><select id="condition">${conditionOptions}</select>
 				</div>
@@ -51,16 +52,83 @@ try {
 		});
 		let condition = await dialog;
 		if (!condition) return;
-        const effectData = {
-			changes: [{ key: `flags.midi-qol.advantage.ability.check.${condition}`, mode: 0, value: "1", priority: 20 }],
+		const sizeTypes = {
+			grg: { Enlarge: "grg", Reduce: "huge" },
+			huge: { Enlarge: "grg", Reduce: "lg" },
+			lg: { Enlarge: "huge", Reduce: "med" },
+			med: { Enlarge: "lg", Reduce: "sm" },
+			sm: { Enlarge: "med", Reduce: "tiny" },
+			tiny: { Enlarge: "sm", Reduce: "tiny" }
+		}
+		const sizeMults = {
+			grg: 4,
+			huge: 3,
+			lg: 2,
+			med: 1,
+			sm: 1,
+			tiny: 0.25
+		}
+		let originalSize = t.actor.system.traits.size;
+		let changes = condition == "Enlarge" ? [{ key: "system.bonuses.mwak.damage", mode: 2, value: "+1d4", priority: 20 }, { key: "system.bonuses.rwak.damage", mode: 2, value: "+1d4", priority: 20 }] : [ { key: "system.bonuses.mwak.damage", mode: 2, value: "-1d4", priority: 20 }, { key: "system.bonuses.rwak.damage", mode: 2, value: "-1d4", priority: 20 }];
+		changes = changes.concat([{ key: "system.traits.size", mode: 5, value: sizeTypes[originalSize][condition], priority: 20 }, { key: "ATL.height", mode: 5, value: sizeMults[sizeTypes[originalSize][condition]], priority: 20 }, { key: "ATL.width", mode: 5, value: sizeMults[sizeTypes[originalSize][condition]], priority: 20 }]);
+		const effectData = {
+			changes: changes,
 			disabled: false,
 			origin: args[0].item.uuid,
 			name: args[0].item.name,
             icon: args[0].item.img,
-			duration: { seconds: 3600 }
+			duration: { seconds: 60 },
 		}
-        if (condition == "con") effectData.changes.push({ key: "macro.actorUpdate", mode: 0, value: `${t.actor.uuid} number '${args[0].damageTotal}' system.attributes.hp.temp '0'`, priority: 20 });
-        if (condition == "str") effectData.changes.push({ key: "flags.dnd5e.powerfulBuild", mode: 0, value: "1", priority: 20 });
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: t.actor.uuid, effects: [effectData] });
     });
-} catch (err) {console.error("Enhance Ability Macro - ", err)}
+} catch (err) {console.error("Enlarge/Reduce Macro - ", err)}
+
+/*
+try {
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || !args[0].targets.find(t => t?.actor.effects.find(e => e.origin == args[0].item.uuid && !e.changes.find(e => e.key == "flags.dae.deleteUuid")))) return;
+    let dialog = new Promise((resolve) => {
+        new Dialog({
+        title: "Usage Configuration: Enlarge/Reduce",
+        content: `<p>Enlarge or Reduce target(s)?</p>`,
+        buttons: {
+            confirm: {
+                label: "Enlarge",
+                callback: () => resolve("enlarge")
+            },
+            cancel: {
+                label: "Reduce",
+                callback: () => {resolve("reduce")}
+            }
+        },
+        default: "cancel",
+        close: () => {resolve(false)}
+        }).render(true);
+    });
+    let condition = await dialog;
+    if (!condition) return;
+    const sizeTypes = {
+        grg: { enlarge: "grg", reduce: "huge" },
+        huge: { enlarge: "grg", reduce: "lg" },
+        lg: { enlarge: "huge", reduce: "med" },
+        med: { enlarge: "lg", reduce: "sm" },
+        sm: { enlarge: "med", reduce: "tiny" },
+        tiny: { enlarge: "sm", reduce: "tiny" }
+    }
+    const sizeMults = {
+        grg: { enlarge: 1, reduce: 0.75 },
+        huge: { enlarge: 1.33, reduce: 0.66 },
+        lg: { enlarge: 1.5, reduce: 0.5 },
+        med: { enlarge: 2, reduce: 1 },
+        sm: { enlarge: 1, reduce: 0.25 },
+        tiny: { enlarge: 4, reduce: 1 }
+    }
+    let changes = condition == "enlarge" ? [{ key: "system.bonuses.mwak.damage", mode: 2, value: "1d4", priority: 20 }, { key: "system.bonuses.rwak.damage", mode: 2, value: "1d4", priority: 20 }] : [ { key: "system.bonuses.mwak.damage", mode: 2, value: "-1d4", priority: 20 }, { key: "system.bonuses.rwak.damage", mode: 2, value: "-1d4", priority: 20 }];
+    args[0].targets.forEach(async t => {
+        const effect = t?.actor.effects.find(e => e.origin == args[0].item.uuid);
+        if (!effect) return;
+        const originalSize = t.actor.system.traits.size;
+        changes = changes.concat([{ key: "system.traits.size", mode: 5, value: sizeTypes[originalSize][condition], priority: 20 }, { key: "ATL.height", mode: 5, value: sizeMults[originalSize][condition], priority: 20 }, { key: "ATL.width", mode: 5, value: sizeMults[originalSize][condition], priority: 20 }]);
+        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: t.actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat(changes) }] });
+    });
+} catch (err) {console.error("Enlarge/Reduce Macro - ", err)}
+*/

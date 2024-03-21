@@ -1,5 +1,5 @@
 try {
-    if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.appliedDamage && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
+    if (args[0].macroPass == "preTargetDamageApplication" && workflow.damageItem.appliedDamage > 0 && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always")) {
         const usesItem = args[0].actor.items.find(i => i.name.includes("Relentless Endurance") && i.system.uses.value);
         if (!usesItem) return;
         let updateHook = Hooks.on("midi-qol.preTargetDamageApplication", async (tokenNext, damageNext) => {

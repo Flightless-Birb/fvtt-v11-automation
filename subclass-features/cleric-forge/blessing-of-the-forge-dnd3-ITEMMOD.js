@@ -4,7 +4,7 @@ try {
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (lastArg.macroPass == "postActiveEffects") {
         lastArg.targets.forEach(async target => {
-            const equipped = target.actor.items.filter(i => !i.system?.properties?.has("mgc") && ((i?.type == "weapon" && ["simple","martial"].find(t => i.system?.type?.value?.toLowerCase()?.includes(t))) || (i?.type == "equipment" && i.system?.armor?.value && i.system?.type?.value?.toLowerCase() != "shield")));
+            const equipped = target.actor.items.filter(i => !i.system?.properties?.has("mgc") && ((i?.type == "weapon" && ["simple","martial"].find(t => i.system?.type?.value?.toLowerCase()?.includes(t))) || (i?.type == "equipment" && i.system?.armor?.value && !["natural", "shield"].includes(i.system?.type?.value?.toLowerCase()))));
             if (equipped.length) {
                 let weaponOrArmorContent = "";
                 equipped.forEach((weaponOrArmor) => { weaponOrArmorContent += `<label class="radio-label"><input type="radio" name="weaponOrArmor" value="${weaponOrArmor.id}"><img src="${weaponOrArmor.img}" style="border:0px; width: 50px; height:50px;">${weaponOrArmor.name}</label>`; });

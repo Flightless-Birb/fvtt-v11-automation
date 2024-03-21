@@ -215,12 +215,12 @@ Hooks.on("midi-qol.preAttackRollComplete", async (workflow) => {
                         console.warn("Attack 1/2 Cover used");
                     }
                 } catch (err) {
-                    console.error("Attack Cover Macro Error - ", err);
+                    console.error("Attack Cover World Macro Error - ", err);
                 }
             }
         }
     } catch(err) {
-        console.error("preAttackRollComplete Macro Error - ", err);
+        console.error("Attack Cover World Macro Error - ", err);
     }
 });
 
@@ -274,11 +274,11 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                         console.warn("Attack 1/2 Cover used");
                     }
                 } catch (err) {
-                    console.error("Save Cover Macro Error - ", err);
+                    console.error("Save Cover World Macro Error - ", err);
                 }
             }
         }
     } catch(err) {
-        console.error("preCheckSaves Macro Error - ", err);
+        console.error("Save Cover World Macro Error - ", err);
     }
 });

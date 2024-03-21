@@ -59,7 +59,7 @@ try {
     if (!useFeat) return;
     let newDamageRolls = args[0].workflow.damageRolls;
     let newBonusDamageRolls = args[0].workflow.bonusDamageRolls;
-    newDamageRolls.forEach(async r => {
+    if (newDamageRolls) newDamageRolls.forEach(async r => {
         r.terms.forEach(t => { 
             if (!t.faces) return;
             t.results.forEach(d => {
@@ -70,7 +70,7 @@ try {
             });
         });
     });
-    newBonusDamageRolls.forEach(async r => {
+    if (newBonusDamageRolls) newBonusDamageRolls.forEach(async r => {
         r.terms.forEach(t => { 
             if (!t.faces) return;
             t.results.forEach(d => {

@@ -6,7 +6,7 @@ try {
 		const conditionOptions = conditions.reduce((acc, target) => acc += `<option value="${target.value}">${target.key}</option>`, "");
 		let dialog = new Promise((resolve) => {
 			new Dialog({
-			title: "Blindness/Deafness",
+			title: "Enhance Ability",
 			content: `
 			<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
 				<p>Choose an Ability to enhance.</p>
@@ -15,7 +15,7 @@ try {
 				<p>Targeting: </p>
 				<img id="${t.id}" src="${t.texture.src ?? t.document.texture.src}" style="border: 0px; width 50px; height: 50px;">
 			</div>
-			<form>
+			<form style="padding-bottom: 10px">
 				<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
 					<label for="condition">Ability:</label><select id="condition">${conditionOptions}</select>
 				</div>

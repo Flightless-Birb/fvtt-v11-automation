@@ -5,7 +5,8 @@ try {
         return;
     }
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
-    if (args[0].item.type != "spell" || !args[0].item.system.school || !usesItem) return;
+    if (!((args[0].item.type == "spell" && args[0].item.system.school) || (args[0].item == "consumable" && args[0].item.system.type.value == "scroll")) || !usesItem) return;
+    let spellLevel = args[0]?.spellLevel ?? args[0].item.flags?.["midi-qol"]?.scroll?.level ?? args[0].item.system.level ?? 0;
     let consume = true;
     if (args[0].macroPass == "preTargeting" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {
         let metamagicContent = "";
@@ -24,7 +25,7 @@ try {
         let transmutedItem = args[0].actor.items.find(i => i.name == "Metamagic: Transmuted Spell");
         if (transmutedItem && args[0].item.system.damage?.parts?.length && args[0].item.system.damage.parts.find(p => ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(p[1].toLowerCase()))) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="transmuted"><img src="${transmutedItem.img}" style="border:0px; width: 50px; height:50px;">Transmuted Spell<br>(1 Sorcery Point)</label>`;
         let twinnedItem = args[0].actor.items.find(i => i.name == "Metamagic: Twinned Spell");
-        if (twinnedItem && ["action", "bonus"].includes(args[0].item.system.activation.type) && ["ally", "creature", "enemy"].includes(args[0].item.system.target.type) && args[0].item.system.target.value == 1 && usesItem.system.uses.value >= Math.max(1, args[0].spellLevel)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="twinned"><img src="${twinnedItem.img}" style="border:0px; width: 50px; height:50px;">Twinned Spell (${Math.max(1, args[0].spellLevel)}<br>Sorcery Point${Math.max(1, args[0].spellLevel) > 1 ? "s" : ""})</label>`;
+        if (twinnedItem && ["action", "bonus"].includes(args[0].item.system.activation.type) && ["ally", "creature", "enemy"].includes(args[0].item.system.target.type) && args[0].item.system.target.value == 1 && usesItem.system.uses.value >= Math.max(1, spellLevel)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="twinned"><img src="${twinnedItem.img}" style="border:0px; width: 50px; height:50px;">Twinned Spell (${Math.max(1, spellLevel)}<br>Sorcery Point${Math.max(1, spellLevel) > 1 ? "s" : ""})</label>`;
         if (metamagicContent == "") return;
         let content = `
             <style>
@@ -134,7 +135,7 @@ try {
             // update metamagic and resource for real roll
             let updateHook = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.item.uuid == args[0].item.uuid) {
-                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
+                    if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, spellLevel)) });
                     workflowNext.bonusTargets = workflowNext.bonusTargets ? workflowNext.bonusTargets + 1 : 1;
                     if (workflowNext.metamagic) {
                         workflowNext.metamagic.twinned = true;

@@ -1,8 +1,8 @@
 try {
     if (args[0].macroPass != "preItemRoll" || args[0].item.type != "spell" || !["prepared", "always"].includes(args[0].item.system.preparation.mode)) return;
     let createHook = Hooks.on("refreshMeasuredTemplate", async (template) => {
-        if (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.spellLevel > args[0].workflow.item.system.level) {
-            let newDistance  = template.document.distance + (5 * (args[0].workflow.spellLevel - args[0].workflow.item.system.level));
+        if (template?.document?.flags?.dnd5e.origin == args[0].workflow.item.uuid && args[0].workflow.castData.castLevel > args[0].workflow.castData.baseLevel) {
+            let newDistance  = template.document.distance + (5 * (args[0].workflow.castData.castLevel - args[0].workflow.castData.baseLevel));
             template.document.distance = newDistance;
             template.document._source.distance = newDistance;
             Hooks.off("refreshMeasuredTemplate", createHook);
@@ -19,8 +19,8 @@ try {
 try {
     if (args[0].macroPass != "preItemRoll" || args[0].item.type != "spell" || !["prepared", "always"].includes(args[0].item.system.preparation.mode)) return;
     let createHook = Hooks.on("refreshMeasuredTemplate", async (template) => {
-        if (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.spellLevel > args[0].workflow.item.system.level) {
-            let newDistance  = template.document.distance + (10 * (args[0].workflow.spellLevel - args[0].workflow.item.system.level));
+        if (template?.document?.flags?.dnd5e.origin == args[0].workflow.item.uuid && args[0].workflow.castData.castLevel > args[0].workflow.castData.baseLevel) {
+            let newDistance  = template.document.distance + (10 * (args[0].workflow.castData.castLevel - args[0].workflow.castData.baseLevel));
             template.document.distance = newDistance;
             template.document._source.distance = newDistance;
             Hooks.off("refreshMeasuredTemplate", createHook);
@@ -37,8 +37,8 @@ try {
 try {
     if (args[0].macroPass != "preItemRoll" || args[0].item.type != "spell" || !["prepared", "always"].includes(args[0].item.system.preparation.mode)) return;
     let createHook = Hooks.on("refreshMeasuredTemplate", async (template) => {
-        if (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.spellLevel > args[0].workflow.item.system.level) {
-            let newDistance  = template.document.distance + (20 * (args[0].workflow.spellLevel - args[0].workflow.item.system.level));
+        if (template?.document?.flags?.dnd5e.origin == args[0].workflow.item.uuid && args[0].workflow.castData.castLevel > args[0].workflow.castData.baseLevel) {
+            let newDistance  = template.document.distance + (20 * (args[0].workflow.castData.castLevel - args[0].workflow.castData.baseLevel));
             template.document.distance = newDistance;
             template.document._source.distance = newDistance;
             Hooks.off("refreshMeasuredTemplate", createHook);
@@ -56,10 +56,10 @@ try {
 try {
     if (args[0].macroPass != "preItemRoll") return;
     let createHook = Hooks.on("refreshMeasuredTemplate", async (template) => {
-        console.error("in", (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.spellLevel > args[0].workflow.item.system.level))
-        if (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.spellLevel > args[0].workflow.item.system.level) {
+        console.error("in", (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.castData.castLevel > args[0].workflow.castData.baseLevel))
+        if (template?.item?.uuid == args[0].workflow.item.uuid && args[0].workflow.castData.castLevel > args[0].workflow.castData.baseLevel) {
             let oldDistance = template.document.distance;
-            let newDistance  = template.document.distance + (10 * (args[0].workflow.spellLevel - args[0].workflow.item.system.level));
+            let newDistance  = template.document.distance + (10 * (args[0].workflow.castData.castLevel - args[0].workflow.castData.baseLevel));
             let distanceMult = (newDistance / oldDistance);
             template.document.distance = newDistance;
             template.document._source.distance = newDistance;

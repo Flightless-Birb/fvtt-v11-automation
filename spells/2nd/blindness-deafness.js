@@ -16,7 +16,7 @@ try {
 				<p>Targeting: </p>
 				<img id="${t.id}" src="${t.texture.src ?? t.document.texture.src}" style="border: 0px; width 50px; height: 50px;">
 			</div>
-			<form>
+			<form style="padding-bottom: 10px">
 				<div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
 					<label for="condition">Condition:</label><select id="condition">${conditionOptions}</select>
 				</div>

@@ -5,5 +5,5 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 			workflow.attackAdvAttribution = workflow.attackAdvAttribution ? new Set([...workflow.attackAdvAttribution].concat(["DIS:longRange"])) : new Set(["DIS:longRange"]);
 			workflow.advReminderAttackAdvAttribution = workflow.attackAdvAttribution;
 		}
-	} catch (err) {console.error("preAttackRoll Hook Macro - ", err)}
+	} catch (err) {console.error("Long Range World Macro Error - ", err)}
 });

@@ -51,14 +51,15 @@ try {
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         args[0].workflow.furyOfTheSmall = "attack";
         return { damageRoll: `${args[0].actor.system.attributes.prof}`, flavor: "Fury of the Small" }
-    } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)  && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
+    } else if (args[0].macroPass == "preDamageApplication" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageList && args[0].item.type == "spell" && !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && !["", "midi-none", "temphp", "healing"].find(d => args[0].item.system.damage.parts[0][1] == d)  && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Fury of the Small" && !e.disabled))) {
         let targetContent = "";
         args[0].damageList.forEach((target) => { 
             let targetToken = canvas.tokens.get(target.tokenId);
-            if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor) || sizes[args[0].actor.system.traits.size] >= sizes(targetToken.actor.system.traits.size)) return;
+            if (target.appliedDamage < 1 || !targetToken.actor || !MidiQOL.typeOrRace(targetToken.actor) || sizes[args[0].actor.system.traits.size] >= sizes[targetToken.actor.system.traits.size]) return;
             targetContent += `<label class="radio-label"><input type="radio" name="target" value="${targetToken.id}"><img id="${targetToken.id}" src="${targetToken.texture.src ?? targetToken.document.texture.src}" style="border: 0px; width 50px; height: 50px;"></label>`; 
         });
         if (targetContent == "") return;
+        const usesItem = args[0].actor.items.find(i => i.name == "Fury of the Small" && i.system.uses.value);
         const content = `
             <style>
             .target .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
